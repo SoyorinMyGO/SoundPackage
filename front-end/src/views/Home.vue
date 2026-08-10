@@ -1,13 +1,11 @@
 <template>
+  <!-- 主容器 -->
   <div class="main-container">
-    <!-- 主容器 -->
-    <div class="head">
-      <!-- 顶部栏 -->
-    </div>
+    <!-- 顶部栏 -->
+    <Head></Head>
     <div class="content">
-      <div class="side-bar">
-        <!-- 侧边栏 -->
-      </div>
+      <!-- 侧边栏 -->
+      <Sidebar></Sidebar>
       <div class="main-view">
         <!-- 主视图 -->
       </div>
@@ -16,7 +14,8 @@
 </template>
 
 <script setup>
-
+import Sidebar from "./Sidebar.vue";
+import Head from "./Head.vue";
 </script>
 
 <style scoped>
