@@ -13,6 +13,7 @@ export const userThemeStore = defineStore('theme',() => {
             textColor: '#333333',
             primaryColor: '#1989fa',
             secondaryColor: '#f5f5f5',
+            windowControl_bg: '#FFFFFF',
         },
         dark: {
             name: "dark",
@@ -22,6 +23,7 @@ export const userThemeStore = defineStore('theme',() => {
             textColor: '#eff6fd',
             primaryColor: '#4c8bf5',
             secondaryColor: '#2d2d2d',
+            windowControl_bg: '#0D0D11',
         }
     };
 
@@ -46,12 +48,13 @@ export const userThemeStore = defineStore('theme',() => {
          * 通过修改localStorage的方式来加载主体颜色
          **/
         const theme = themes[currentTheme.value]
-        document.documentElement.style.setProperty('--head', theme.backgroundColor)
+        document.documentElement.style.setProperty('--head', theme.head)
         document.documentElement.style.setProperty('--side-bar', theme.sideBar)
-        document.documentElement.style.setProperty('--background', theme.backgroundColor)
+        document.documentElement.style.setProperty('--background', theme.background)
         document.documentElement.style.setProperty('--text-color', theme.textColor)
         document.documentElement.style.setProperty('--primaryColor', theme.primaryColor)
         document.documentElement.style.setProperty('--secondaryColor', theme.secondaryColor)
+        document.documentElement.style.setProperty('--windowControl_bg', theme.windowControl_bg)
     }
 
     function initTheme() {

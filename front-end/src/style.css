@@ -22,6 +22,7 @@
   --text-color: '';
   --primaryColor: '';
   --secondaryColor: '';
+  --windowControl_bg: '';
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
