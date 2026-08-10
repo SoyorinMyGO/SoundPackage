@@ -411,3 +411,6 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,pycharm,webstorm,python,vuejs,vue
+
+# 自定义忽略
+接口开发说明文档.md
