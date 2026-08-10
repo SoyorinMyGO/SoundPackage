@@ -70,8 +70,6 @@ atlassian-ide-plugin.xml
 .idea/sonarlint/
 
 .vscode/*
-node_modules/
-front-end/node_modules/
 
 # Crashlytics plugin (for Android Studio and IntelliJ)
 com_crashlytics_export_strings.xml
