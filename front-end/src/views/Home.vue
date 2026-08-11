@@ -2,10 +2,10 @@
   <!-- 主容器 -->
   <div class="main-container">
     <!-- 顶部栏 -->
-    <Head></Head>
+    <Head :isCollapsed="isCollapsed" @toggle="toggleCollapsed"></Head>
     <div class="content">
       <!-- 侧边栏 -->
-      <Sidebar></Sidebar>
+      <Sidebar :isCollapsed="isCollapsed"></Sidebar>
       <div class="main-view">
         <!-- 主视图 -->
       </div>
@@ -16,6 +16,12 @@
 <script setup>
 import Sidebar from "./Sidebar.vue";
 import Head from "./Head.vue";
+import {ref} from "vue";
+
+const isCollapsed = ref(true)
+function toggleCollapsed(){
+  isCollapsed.value = !isCollapsed.value;
+}
 </script>
 
 <style scoped>
