@@ -25,7 +25,7 @@ function toggleCollapsed(){
 </script>
 
 <style scoped>
-html, body, #app, .main-container { height: 100%; }
+html, body, .main-container { height: 100%; }
 .main-container {
   display: flex;
   flex-direction: column;

@@ -17,13 +17,13 @@ export const userThemeStore = defineStore('theme',() => {
         },
         dark: {
             name: "dark",
-            head: '#111114',
-            sideBar: '#111114',
-            background: '#0D0D11',
+            head: '#0D0D11',
+            sideBar: '#0D0D11',
+            background: '#111114',
             textColor: '#eff6fd',
             primaryColor: '#4c8bf5',
             secondaryColor: '#2d2d2d',
-            windowControl_bg: '#0D0D11',
+            windowControl_bg: '#111114',
         }
     };
 

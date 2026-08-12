@@ -40,5 +40,6 @@ const emit = defineEmits(["toggle"]);
 }
 #toggleButton i{
   font-family: "iconfont",serif !important;
+  color: var(--primaryColor)
 }
 </style>
