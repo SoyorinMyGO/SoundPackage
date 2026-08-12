@@ -1,6 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
-from routers import voice, test
+from routers import voice, test, package
 
 app = FastAPI()
 
@@ -10,6 +10,7 @@ async def root():
 
 app.include_router(voice.router)
 app.include_router(test.router)
+app.include_router(package.router)
 
 if __name__ == '__main__':
     uvicorn.run("main:app", host="0.0.0.0", port=24990, reload=True)
