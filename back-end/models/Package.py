@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import Integer, String, DateTime, Index
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -18,7 +19,7 @@ class Package(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment='语音包id')
     name: Mapped[str] = mapped_column(String, unique=True, nullable=True, comment='语音包名')
-    alias: Mapped[str] = mapped_column(String, comment='别名')
+    alias: Mapped[Optional[str]] = mapped_column(String, comment='别名')
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(), comment='创建时间')
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(), comment='更新时间')
 
