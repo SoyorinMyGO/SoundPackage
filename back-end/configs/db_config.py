@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
-ASYNC_DATABASE_URL = "mysql+aiomysql://root:123456@localhost:3306/sound_package?charset=utf8mb4"
+ASYNC_DATABASE_URL = "mysql+aiomysql://root:123456@localhost:3306/soundpackage?charset=utf8mb4"
 
 # 创建数据库引擎
 async_engine = create_async_engine(
@@ -25,6 +25,6 @@ async def get_db():
             await session.commit()  # 提交会话请求
         except Exception as e:
             await session.rollback()    # 回滚数据库
-            raise f"无法获取数据库会话，错误信息:{e}"
+            raise Exception(f"无法获取数据库会话，错误信息:{e}")
         finally:
             await session.close()   # 关闭数据库会话

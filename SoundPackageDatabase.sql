@@ -1,3 +1,4 @@
+-- 主表
 -- 1. voice 表
 CREATE TABLE voice (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -56,3 +57,28 @@ CREATE TABLE voice_belong_tag (
     FOREIGN KEY (voice_id) REFERENCES voice(id),
     UNIQUE KEY (tag_id, voice_id)
 );
+
+-- 索引
+-- 1. voice 表
+CREATE INDEX idx_voice_length ON voice(length);          -- 按时长筛选
+CREATE INDEX idx_voice_used_times ON voice(used_times);  -- 按使用次数排序
+CREATE INDEX idx_voice_created_at ON voice(created_at);  -- 按创建时间排序
+
+-- 2. Package 表
+CREATE INDEX idx_package_updated_at ON package(updated_at);
+
+-- 3. voice_belong_package 表
+CREATE INDEX idx_vbp_voice_id ON voice_belong_package(voice_id);
+CREATE INDEX idx_vbp_package_id ON voice_belong_package(package_id);
+
+-- 4. voice_belong_tag 表
+CREATE INDEX idx_vbt_tag_id ON voice_belong_tag(tag_id);
+CREATE INDEX idx_vbt_voice_id ON voice_belong_tag(voice_id);
+
+-- 5. tag_related 表
+CREATE INDEX idx_tr_parent_id ON tag_related(parent_id);
+CREATE INDEX idx_tr_child_id ON tag_related(child_id);
+
+-- 默认数据
+INSERT INTO package (name)
+VALUES ('全部语音')
