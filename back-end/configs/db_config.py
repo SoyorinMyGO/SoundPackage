@@ -1,8 +1,11 @@
-from fastapi import HTTPException, logger
+from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+import logging
 
 ASYNC_DATABASE_URL = "mysql+aiomysql://root:123456@localhost:3306/soundpackage?charset=utf8mb4"
+
+logger = logging.getLogger(__name__)
 
 # 创建数据库引擎
 async_engine = create_async_engine(
