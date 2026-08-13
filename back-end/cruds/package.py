@@ -1,7 +1,7 @@
 from typing import Any, Sequence, Optional
 
 from fastapi import HTTPException
-from sqlalchemy import select, update
+from sqlalchemy import select, update, delete
 from sqlalchemy.dialects.mysql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
@@ -73,3 +73,18 @@ async def change_package_crud(id: int, updated_data: PackageChangeRequest, db: A
     print(f'DEBUG: package:{package}')
 
     return package
+
+async def delete_package_crud(id: int, db: AsyncSession) -> bool:
+    """删除语音包
+
+    Args:
+        id(int): 语音包id
+        db(AsyncSession): 数据库会话
+
+    Returns:
+        bool: 是否删除成功
+    """
+    stmt = delete(Package).where(Package.id == id)
+    result = await db.execute(stmt)
+    await db.commit()
+    return result.rowcount > 0
