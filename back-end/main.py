@@ -1,8 +1,22 @@
 import uvicorn
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
+
 from routers import voice, test, package
+from utils.exception_handle import register_exception_handlers
 
 app = FastAPI()
+
+register_exception_handlers(app)
+
+# 添加中间件
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 async def root():
