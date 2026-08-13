@@ -1,3 +1,5 @@
+from fastapi import HTTPException, logger
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
 ASYNC_DATABASE_URL = "mysql+aiomysql://root:123456@localhost:3306/soundpackage?charset=utf8mb4"
@@ -21,10 +23,27 @@ async def get_db():
     """获取数据库会话"""
     async with async_session_local() as session:
         try:
-            yield session   # 返回数据库
-            await session.commit()  # 提交会话请求
+            yield session
+            await session.commit()  # 如果没有异常，提交事务
+        except HTTPException:
+            # HTTP 业务异常，直接抛出
+            await session.rollback()
+            raise
+        except SQLAlchemyError as e:
+            # 数据库异常
+            await session.rollback()
+            logger.error(f"数据库错误: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"数据库操作失败: {str(e)}"
+            )
         except Exception as e:
-            await session.rollback()    # 回滚数据库
-            raise Exception(f"无法获取数据库会话，错误信息:{e}")
+            # 其他未知异常
+            await session.rollback()
+            logger.error(f"未知错误: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail="服务器内部错误"
+            )
         finally:
-            await session.close()   # 关闭数据库会话
+            await session.close()
