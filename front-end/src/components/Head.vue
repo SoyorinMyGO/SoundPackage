@@ -2,8 +2,8 @@
 <div class="head">
   <!-- 顶部栏 -->
   <button @click="emit('toggle')" id="toggleButton">
-    <i class="icon icon-unfold" v-if="!isCollapsed"></i>
-    <i class="icon icon-fold" v-if="isCollapsed"></i>
+    <i class="icon icon-unfold" v-if="isCollapsed"></i>
+    <i class="icon icon-fold" v-if="!isCollapsed"></i>
 
   </button>
 </div>

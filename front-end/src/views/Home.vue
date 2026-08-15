@@ -5,7 +5,7 @@
     <Head :isCollapsed="isCollapsed" @toggle="toggleCollapsed"></Head>
     <div class="content">
       <!-- 侧边栏 -->
-      <Sidebar :isCollapsed="isCollapsed"></Sidebar>
+      <Sidebar :isCollapsed="isCollapsed" @collapse-request="setCollapsed"></Sidebar>
       <div class="main-view">
         <!-- 主视图 -->
       </div>
@@ -21,6 +21,9 @@ import {ref} from "vue";
 const isCollapsed = ref(true)
 function toggleCollapsed(){
   isCollapsed.value = !isCollapsed.value;
+}
+function setCollapsed(val){
+  isCollapsed.value = val;
 }
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-<div class="side-bar" :class="{ collapsed: isCollapsed }">
+<div class="side-bar" ref="root" :class="{ collapsed: isCollapsed }">
   <!-- 侧边栏 -->
   <!--搜索栏-->
   <SearchInput v-model="formData.name"></SearchInput>
@@ -21,14 +21,21 @@
 
 <script setup>
 import SearchInput from "./SearchInput.vue";
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, onMounted, onBeforeUnmount, ref, watch} from "vue";
 import apiClient from "../utils/axios_config.js";
 
-defineProps({
+const props = defineProps({
   isCollapsed: Boolean
 })
 
+const emit = defineEmits(['collapse-request'])
+
 const responseData = ref(null)
+const root = ref(null)
+let lastCollapsed = null
+const COLLAPSE_THRESHOLD = 180
+let roInstance = null
+let onResizeFn = null
 
 // 获取语音包列表
 const get_list = async () => {
@@ -73,25 +80,71 @@ watch(() => formData.value.name, (newText) => {
 
 onMounted(() => {
   get_list();
+  // 初始化为当前 prop，避免首次发出与当前状态相同的事件
+  lastCollapsed = props.isCollapsed
+
+  const measureAndMaybeEmit = (w) => {
+    const shouldCollapse = w < COLLAPSE_THRESHOLD
+    // 如果期望状态等于当前 prop，说明无需变更（防止翻转）
+    if (shouldCollapse === props.isCollapsed) {
+      lastCollapsed = shouldCollapse
+      return
+    }
+    // 只有当与上次不同且与当前 prop 不同的时候才发出请求
+    if (shouldCollapse !== lastCollapsed) {
+      lastCollapsed = shouldCollapse
+      emit('collapse-request', shouldCollapse)
+    }
+  }
+
+  if (window.ResizeObserver && root.value) {
+    roInstance = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const w = entry.contentRect.width
+        measureAndMaybeEmit(w)
+      }
+    })
+    roInstance.observe(root.value)
+  } else {
+    onResizeFn = () => {
+      const el = root.value
+      if (!el) return
+      const w = el.getBoundingClientRect().width
+      measureAndMaybeEmit(w)
+    }
+    window.addEventListener('resize', onResizeFn)
+    onResizeFn()
+  }
+})
+
+onBeforeUnmount(() => {
+  if (roInstance) roInstance.disconnect()
+  if (onResizeFn) window.removeEventListener('resize', onResizeFn)
 })
 </script>
 
 <style scoped>
 .side-bar {
-  width: 0;
+  width: 25%;
   background: var(--sidebar);
-  overflow: auto;
-  transition: width 0.5s ease, padding 0.7s ease;
+  overflow: hidden; /* hide inner overflow when collapsing */
+  transition: width 0.4s ease, padding 0.3s ease;
   border-top: 1px solid #141417;
-  padding-top: 15px;
+  padding: 5px 15px 0 15px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.collapsed {
-  width: 25%;
-  padding: 15px;
+.side-bar.collapsed {
+  width: 0;
+  padding: 0;
+}
+
+/* hide content when fully collapsed to avoid icons forcing width */
+.side-bar.collapsed .search-wrapper,
+.side-bar.collapsed #package-list {
+  display: none;
 }
 
 #package-list {

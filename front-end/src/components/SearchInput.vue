@@ -14,13 +14,12 @@ const search=defineModel()
   display: flex;
   align-items: center;
   width: 100%;
-  margin-top: 20px;
-  margin-right: 5px;
-  margin-left:5px;
+  margin-top: 15px;
   background-color: var(--background);
   border-radius: 5px;
   padding: 0 12px;
   min-width: 0;
+  align-self: stretch;
 }
 
 .search-input {
