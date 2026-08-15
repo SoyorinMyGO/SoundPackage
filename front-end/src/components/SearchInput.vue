@@ -15,17 +15,21 @@ const search=defineModel()
   align-items: center;
   width: 100%;
   margin-top: 20px;
-  background: #222222;
+  margin-right: 5px;
+  margin-left:5px;
+  background-color: var(--background);
   border-radius: 5px;
   padding: 0 12px;
+  min-width: 0;
 }
 
 .search-input {
   height: 35px;
   flex: 1 1 0;
+  min-width: 0;
   border: none;
   border-radius: 5px;
-  background: #222222
+  background: var(--background);
 }
 
 .search-input:focus {
@@ -37,5 +41,6 @@ i {
   font-size: 18px;
   font-family: "iconfont", serif !important;
   margin-left: 8px;
+  flex-shrink: 0;
 }
 </style>
