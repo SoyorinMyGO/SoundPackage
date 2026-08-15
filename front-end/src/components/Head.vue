@@ -29,14 +29,21 @@ const emit = defineEmits(["toggle"]);
   background-color: var(--head);
 }
 #toggleButton {
-  margin-left: 6px;
-  margin-top: 8px;
-  width: 40px;
-  height: 40px;
+  margin-left: 10px;
+  margin-top: 12px;
+  width: 30px;
+  height: 30px;
   align-self: flex-start;
   border: none;
+  border-radius: 15px;
   background: transparent;
-  color: #ffffff
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+/* 按钮动效 */
+#toggleButton:active {
+  transform: scale(0.9)
 }
 #toggleButton i{
   font-family: "iconfont",serif !important;
