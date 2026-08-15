@@ -17,12 +17,13 @@
 
   /* 主题变量 */
   --head: '';
-  --side-bar: '';
+  --sidebar: '';
   --background: '';
-  --text-color: '';
+  --textColor: '';
   --primaryColor: '';
   --secondaryColor: '';
   --windowControl_bg: '';
+  --hover: '';
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
@@ -65,7 +66,7 @@ body {
 
 h1,
 h2 {
-  font-family: var(--heading);
+  font-family: var(--heading) sans-serif;
   font-weight: 500;
   color: var(--text-h);
 }
@@ -94,7 +95,7 @@ p {
 
 code,
 .counter {
-  font-family: var(--mono);
+  font-family: var(--mono) sans-serif;
   display: inline-flex;
   border-radius: 4px;
   color: var(--text-h);

@@ -8,22 +8,24 @@ export const userThemeStore = defineStore('theme',() => {
         light: {
             name: "light",
             head: '#EFF6FD',
-            sideBar: '#EFF6FD',
+            sidebar: '#EFF6FD',
             background: '#FFFFFF',
             textColor: '#333333',
             primaryColor: '#1989fa',
             secondaryColor: '#f5f5f5',
             windowControl_bg: '#FFFFFF',
+            hover: '#FFFFFF',
         },
         dark: {
             name: "dark",
             head: '#0D0D11',
-            sideBar: '#0D0D11',
+            sidebar: '#0D0D11',
             background: '#111114',
             textColor: '#eff6fd',
             primaryColor: '#4c8bf5',
             secondaryColor: '#2d2d2d',
             windowControl_bg: '#111114',
+            hover: 'rgb(230 230 230 / 0.3)',
         }
     };
 
@@ -49,12 +51,13 @@ export const userThemeStore = defineStore('theme',() => {
          **/
         const theme = themes[currentTheme.value]
         document.documentElement.style.setProperty('--head', theme.head)
-        document.documentElement.style.setProperty('--side-bar', theme.sideBar)
+        document.documentElement.style.setProperty('--sidebar', theme.sidebar)
         document.documentElement.style.setProperty('--background', theme.background)
-        document.documentElement.style.setProperty('--text-color', theme.textColor)
+        document.documentElement.style.setProperty('--textColor', theme.textColor)
         document.documentElement.style.setProperty('--primaryColor', theme.primaryColor)
         document.documentElement.style.setProperty('--secondaryColor', theme.secondaryColor)
         document.documentElement.style.setProperty('--windowControl_bg', theme.windowControl_bg)
+        document.documentElement.style.setProperty('--hover', theme.hover)
     }
 
     function initTheme() {
