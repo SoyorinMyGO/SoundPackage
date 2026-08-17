@@ -4,8 +4,8 @@
   <!--搜索栏-->
   <SearchInput v-model="formData.name"></SearchInput>
   <!--语音包列表-->
-  <div v-if="responseData" id="package-list">
-    <div v-for="item in responseData"
+  <div v-if="packageList" id="package-list">
+    <div v-for="item in packageList"
     :key="item.id"
     class="package">
       <button @click="chooseHandle" class="package-button">
@@ -21,7 +21,7 @@
 
 <script setup>
 import SearchInput from "./SearchInput.vue";
-import {computed, onMounted, onBeforeUnmount, ref, watch} from "vue";
+import {computed, onMounted, onBeforeUnmount, ref} from "vue";
 import apiClient from "../utils/axios_config.js";
 
 const props = defineProps({
@@ -30,7 +30,7 @@ const props = defineProps({
 
 const emit = defineEmits(['collapse-request'])
 
-const responseData = ref(null)
+const responseData = ref([])
 const root = ref(null)
 let lastCollapsed = null
 const COLLAPSE_THRESHOLD = 180
@@ -41,8 +41,6 @@ let onResizeFn = null
 const get_list = async () => {
   try {
     const res = await apiClient.get("/api/package");
-    console.log('完整响应', res.data);
-    console.log('数据列表', res.data.data);
     responseData.value = res.data.data;
   }
   catch (e) {
@@ -50,19 +48,33 @@ const get_list = async () => {
   }
 }
 
+const formData = ref({ name: ''})
+const search = computed(() => formData.value.name.trim())
+
 // 解包
 const packageList = computed(() => {
+  console.log("DEBUG:isCompute:", search.value)
   // 检查是否有数据
-  if (!responseData) {
+  if (!responseData.value || responseData.value.length === 0) {
     return [];
   }
 
-  // 检查响应状态
-  if (responseData.value.code !== 200) {
-    return [];
+  const keyword = search.value
+  // 检查搜索列表
+  if (!keyword) {
+    console.log('无搜索词返回全部', responseData.value);
+    return responseData.value;
   }
 
-  return responseData.value.data;
+  const lowerKeyword = keyword.toLowerCase()
+  const filtered = responseData.value.filter(item => {
+    const nameMatch = item.name && item.name.toLowerCase().includes(lowerKeyword)
+    const aliasMatch = item.alias && item.alias.toLowerCase().includes(lowerKeyword)
+    return nameMatch || aliasMatch
+  })
+
+  console.log(`  → 找到 ${filtered.length} 项匹配`)
+  return filtered
 })
 
 // 处理语音包选择
@@ -71,15 +83,9 @@ const chooseHandle = () => {}
 // 处理置顶
 const isPin = () => {}
 
-const search = ref('')
-const formData = ref({ name: ''})
-// 监听搜索栏数据变化
-watch(() => formData.value.name, (newText) => {
-  search = newText
-})
-
 onMounted(() => {
   get_list();
+  //侧边栏展开状态
   // 初始化为当前 prop，避免首次发出与当前状态相同的事件
   lastCollapsed = props.isCollapsed
 
@@ -127,7 +133,7 @@ onBeforeUnmount(() => {
 .side-bar {
   width: 25%;
   background: var(--sidebar);
-  overflow: hidden; /* hide inner overflow when collapsing */
+  overflow: hidden;
   transition: width 0.4s ease, padding 0.3s ease;
   border-top: 1px solid #141417;
   padding: 5px 15px 0 15px;
@@ -141,7 +147,6 @@ onBeforeUnmount(() => {
   padding: 0;
 }
 
-/* hide content when fully collapsed to avoid icons forcing width */
 .side-bar.collapsed .search-wrapper,
 .side-bar.collapsed #package-list {
   display: none;
