@@ -1,10 +1,9 @@
 <template>
 <div class="side-bar" ref="root" :class="{ collapsed: isCollapsed }">
-  <!-- 侧边栏 -->
   <!--搜索栏-->
   <SearchInput v-model="formData.name"></SearchInput>
   <!--语音包列表-->
-  <div v-if="packageList" id="package-list">
+  <el-scrollbar class="package-list">
     <div v-for="item in packageList"
     :key="item.id"
     class="package">
@@ -15,7 +14,7 @@
         <i class="icon-pin"></i>
       </button>
     </div>
-  </div>
+  </el-scrollbar>
 </div>
 </template>
 
@@ -148,14 +147,11 @@ onBeforeUnmount(() => {
 }
 
 .side-bar.collapsed .search-wrapper,
-.side-bar.collapsed #package-list {
+.side-bar.collapsed .package-list {
   display: none;
 }
 
-#package-list {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.package-list {
   width: 100%;
   margin-top: 10px;
 }
