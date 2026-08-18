@@ -1,11 +1,8 @@
 from typing import Any, Sequence, Optional
-
 from fastapi import HTTPException
 from sqlalchemy import select, update, delete
-from sqlalchemy.dialects.mysql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
-from starlette.status import HTTP_404_NOT_FOUND
 
 from models.Package import Package
 from schemas.Package import PackageChangeRequest
@@ -19,10 +16,11 @@ async def get_list_crud(db: AsyncSession) -> Sequence[Any]:
     Returns:
         Sequence[Any]: 语音包列表
     """
-    query = select(Package).order_by(Package.updated_at)
+    query = select(Package).order_by(Package.isTop).order_by(Package.updated_at)
     result = await db.execute(query)
     package_list = result.scalars().all()
     return package_list
+
 
 async def add_package_crud(name: str, db: AsyncSession, alias: Optional[str] = None) -> Package:
     """新建语音包
@@ -41,6 +39,7 @@ async def add_package_crud(name: str, db: AsyncSession, alias: Optional[str] = N
     await db.refresh(package)
 
     return package
+
 
 async def change_package_crud(id: int, updated_data: PackageChangeRequest, db: AsyncSession) -> Package:
     """修改语音包信息
@@ -73,6 +72,7 @@ async def change_package_crud(id: int, updated_data: PackageChangeRequest, db: A
     print(f'DEBUG: package:{package}')
 
     return package
+
 
 async def delete_package_crud(id: int, db: AsyncSession) -> bool:
     """删除语音包

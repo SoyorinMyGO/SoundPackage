@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import Integer, String, DateTime, Index
+from sqlalchemy import Integer, String, DateTime, Index, Boolean
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 class Base(DeclarativeBase):
@@ -18,10 +18,11 @@ class Package(Base):
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment='语音包id')
-    name: Mapped[str] = mapped_column(String, unique=True, nullable=True, comment='语音包名')
+    name: Mapped[str] = mapped_column(String, unique=True, nullable=False, comment='语音包名')
     alias: Mapped[Optional[str]] = mapped_column(String, comment='别名')
+    isTop: Mapped[bool] = mapped_column(Boolean, default=False,nullable=False , comment='是否置顶')
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(), comment='创建时间')
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(), comment='更新时间')
 
     def __repr__(self) -> str:
-        return f'<Package(id={self.id}, name={self.name}, alias={self.alias}, created_at={self.created_at}, updated_at={self.updated_at})'
+        return f'<Package(id={self.id}, name={self.name}, alias={self.alias},isTop={self.isTop} , created_at={self.created_at}, updated_at={self.updated_at})'

@@ -16,6 +16,7 @@ CREATE TABLE package (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) UNIQUE NOT NULL,
     alias VARCHAR(50),
+    isTop BOOLEAN DEFAULT FALSE NOT NULL ,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -78,7 +79,3 @@ CREATE INDEX idx_vbt_voice_id ON voice_belong_tag(voice_id);
 -- 5. tag_related 表
 CREATE INDEX idx_tr_parent_id ON tag_related(parent_id);
 CREATE INDEX idx_tr_child_id ON tag_related(child_id);
-
--- 默认数据
-INSERT INTO package (name)
-VALUES ('全部语音')
