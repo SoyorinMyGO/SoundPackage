@@ -162,7 +162,7 @@ onBeforeUnmount(() => {
   gap: 5px;
   width: 100%;
   height: 35px;
-  margin: 3px;
+  margin: 3px 0 0 0;
 }
 
 .package>.package-button {
