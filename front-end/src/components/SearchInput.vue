@@ -29,6 +29,7 @@ const search=defineModel()
   border: none;
   border-radius: 5px;
   background: var(--background);
+  color: var(--textColor);
 }
 
 .search-input:focus {
