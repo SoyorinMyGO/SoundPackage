@@ -93,6 +93,16 @@ const chooseHandle = () => {}
 
 // 处理置顶
 const pinHandle = (item: PackageItem) => {
+  //上传数据至数据库
+  apiClient.post(`/api/package/${item.id}/top`, null, {
+  params: {
+    isTop: item.isTop
+  }})
+  .then((res) => {
+    console.log('更改置顶状态成功', res.data)})
+  .catch((err) => {
+    console.error('更改置顶状态失败', err);
+  })
   // 更新本地数据
   item.isTop = !item.isTop;
   // 本地重新排序
@@ -103,8 +113,6 @@ const pinHandle = (item: PackageItem) => {
     }
     return new Date(a.updated_at) - new Date(b.updated_at)
   })
-  //上传数据至数据库
-
 }
 
 onMounted(() => {
