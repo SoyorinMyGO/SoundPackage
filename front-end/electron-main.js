@@ -13,7 +13,7 @@ function createWindow() {
   // 将窗口实例赋值给外层的 `win` 变量（避免遮蔽/作用域问题）
   win = new BrowserWindow({
     width: 960,
-    height: 720,
+    height: 600,
     frame: false, // 去除原生窗口框架（标题栏 / 边框）
     transparent: true,
     backgroundColor: '#00000000',
