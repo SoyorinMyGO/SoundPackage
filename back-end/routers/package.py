@@ -25,7 +25,7 @@ async def add_package_router(name :str = Query(..., min_length=1, max_length=50,
     new_package = await crud.add_package_crud(name, db, alias)
     return success_response(message='添加语音包成功', data=new_package)
 
-@router.post("/{id}")
+@router.post("/{id}/name")
 async def change_package_router(
                                 data: schemas.PackageChangeRequest,
                                 id: int = Path(..., description='语音包id'),
@@ -44,3 +44,13 @@ async def delete_package_router(id: int = Path(..., description='语音包id'),
     if not await crud.delete_package_crud(id, db):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='不存在的语音包')
     return success_response(message='删除语音包成功', data=None)
+
+@router.post("/{id}/top")
+async def change_isTop_router(id: int = Path(..., description='语音包id'),
+                              isTop: bool = Query(..., description='是否置顶'),
+                              db: AsyncSession = Depends(get_db)
+):
+    result = await crud.change_isTop_crud(id, isTop, db)
+    if not result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='语音包不存在')
+    return success_response(message='更改置顶状态成功', data=None)

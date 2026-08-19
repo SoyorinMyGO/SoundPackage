@@ -1,6 +1,6 @@
 from typing import Any, Sequence, Optional
 from fastapi import HTTPException
-from sqlalchemy import select, update, delete
+from sqlalchemy import select, update, delete, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
@@ -16,7 +16,7 @@ async def get_list_crud(db: AsyncSession) -> Sequence[Any]:
     Returns:
         Sequence[Any]: 语音包列表
     """
-    query = select(Package).order_by(Package.isTop).order_by(Package.updated_at)
+    query = select(Package).order_by(desc(Package.isTop)).order_by(Package.updated_at)
     result = await db.execute(query)
     package_list = result.scalars().all()
     return package_list
@@ -87,4 +87,21 @@ async def delete_package_crud(id: int, db: AsyncSession) -> bool:
     stmt = delete(Package).where(Package.id == id)
     result = await db.execute(stmt)
     await db.commit()
+    return result.rowcount > 0
+
+
+async def change_isTop_crud(id: int, isTop: bool, db: AsyncSession) -> bool:
+    """转换语音包置顶信息
+
+    Args:
+        id(int): 语音包id
+        isTop(bool): 转换前的置顶信息
+        db(AsyncSession): 数据库会话
+
+    Returns:
+        bool: 是否更改成功
+    """
+    new_isTop = not isTop
+    query = update(Package).where(Package.id == id).values(isTop=new_isTop)
+    result = await db.execute(query)
     return result.rowcount > 0
