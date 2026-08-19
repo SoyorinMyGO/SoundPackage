@@ -33,17 +33,19 @@ html, body, .main-container { height: 100%; }
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
 }
 
 .content {
   display: flex;
+  flex-direction: row;
   flex: 1 1 auto;
   min-height: 0;
+  height: 100%;
 }
 
 .main-view {
-  flex: 1 1 auto;
+  flex: 1;
   background-color: var(--background);
   overflow: auto;
   padding: 12px;

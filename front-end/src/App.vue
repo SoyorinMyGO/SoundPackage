@@ -27,7 +27,7 @@ import Home from './views/Home.vue'
 
 .app {
   width: 100%;
-  height: 100%;
+  height: 100vh;
   background: #131010;
   color: white;
   border-radius: 12px;
@@ -50,7 +50,7 @@ import Home from './views/Home.vue'
 }
 
 .titlebar .title {
-  color: var(--text-color);
+  color: var(--textColor);
 }
 
 .titlebar .logo {
@@ -60,16 +60,16 @@ import Home from './views/Home.vue'
   left: 0;
 }
 .main-content {
-  height: 100vh;
+  height: calc(100vh - 46px);
+  margin-top: 46px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding-top: 40px;
+  align-items: stretch;
+  justify-content: stretch;
 }
 
 /* 所有可交互元素不能拖动（否则无法点击） */
-button, input, a, .no-drag {
+button, input, a {
   -webkit-app-region: no-drag;
 }
 </style>

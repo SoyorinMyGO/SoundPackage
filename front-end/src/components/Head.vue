@@ -23,9 +23,9 @@ const emit = defineEmits(["toggle"]);
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  height: 30px;
+  height: 50px;
   flex: 0 0 50px;
-  margin-top: 24px;
+  margin-top: 0;
   background-color: var(--head);
 }
 #toggleButton {

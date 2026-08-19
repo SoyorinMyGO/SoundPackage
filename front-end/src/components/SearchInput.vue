@@ -13,8 +13,8 @@ const search=defineModel()
 .search-wrapper {
   display: flex;
   align-items: center;
-  width: 100%;
-  margin-top: 15px;
+  flex: 1;
+  margin: 20px 15px 0 15px;
   background-color: var(--background);
   border-radius: 5px;
   padding: 0 12px;
