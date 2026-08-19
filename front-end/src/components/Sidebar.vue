@@ -4,24 +4,45 @@
   <SearchInput v-model="formData.name"></SearchInput>
   <!--语音包列表-->
   <el-scrollbar class="package-list">
+    <!--全部语音固定置顶-->
+    <div class="package">
+      <button @click="chooseHandle" class="package-button">
+        <span>全部语音</span>
+      </button>
+      <button class="pin-button">
+        <i class="icon-pin"></i>
+      </button>
+    </div>
+    <!--其他语音包-->
     <div v-for="item in packageList"
     :key="item.id"
     class="package">
       <button @click="chooseHandle" class="package-button">
         <span>{{ item.name }}</span>
       </button>
-      <button @click="isPin" class="pin-button">
-        <i class="icon-pin"></i>
+      <button @click="pinHandle(item)" class="pin-button">
+        <i class="icon-pin" v-if="item.isTop"></i>
+        <i class="icon-cancel-pin-line" v-if="!item.isTop"></i>
       </button>
     </div>
   </el-scrollbar>
 </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+
 import SearchInput from "./SearchInput.vue";
-import {computed, onMounted, onBeforeUnmount, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import apiClient from "../utils/axios_config.js";
+
+interface PackageItem{
+  id: number
+  name: string
+  alias: string | null
+  isTop: boolean
+  created_at: string
+  updated_at: string
+}
 
 const props = defineProps({
   isCollapsed: Boolean
@@ -29,12 +50,7 @@ const props = defineProps({
 
 const emit = defineEmits(['collapse-request'])
 
-const responseData = ref([])
-const root = ref(null)
-let lastCollapsed = null
-const COLLAPSE_THRESHOLD = 180
-let roInstance = null
-let onResizeFn = null
+const responseData = ref<PackageItem[]>([])
 
 // 获取语音包列表
 const get_list = async () => {
@@ -66,65 +82,34 @@ const packageList = computed(() => {
   }
 
   const lowerKeyword = keyword.toLowerCase()
-  const filtered = responseData.value.filter(item => {
+  return responseData.value.filter(item => {
     const nameMatch = item.name && item.name.toLowerCase().includes(lowerKeyword)
     const aliasMatch = item.alias && item.alias.toLowerCase().includes(lowerKeyword)
     return nameMatch || aliasMatch
   })
-
-  console.log(`  → 找到 ${filtered.length} 项匹配`)
-  return filtered
 })
 
 // 处理语音包选择
 const chooseHandle = () => {}
 
 // 处理置顶
-const isPin = () => {}
+const pinHandle = (item: PackageItem) => {
+  // 更新本地数据
+  item.isTop = !item.isTop;
+  // 本地重新排序
+  responseData.value = responseData.value.sort((a, b) => {
+    if(a.isTop !== b.isTop) {
+      // 优先根据置顶排序
+      return (b.isTop ? 1 : 0) - (a.isTop ? 1 : 0)
+    }
+    return new Date(a.updated_at) - new Date(b.updated_at)
+  })
+  //上传数据至数据库
+
+}
 
 onMounted(() => {
   get_list();
-  //侧边栏展开状态
-  // 初始化为当前 prop，避免首次发出与当前状态相同的事件
-  lastCollapsed = props.isCollapsed
-
-  const measureAndMaybeEmit = (w) => {
-    const shouldCollapse = w < COLLAPSE_THRESHOLD
-    // 如果期望状态等于当前 prop，说明无需变更（防止翻转）
-    if (shouldCollapse === props.isCollapsed) {
-      lastCollapsed = shouldCollapse
-      return
-    }
-    // 只有当与上次不同且与当前 prop 不同的时候才发出请求
-    if (shouldCollapse !== lastCollapsed) {
-      lastCollapsed = shouldCollapse
-      emit('collapse-request', shouldCollapse)
-    }
-  }
-
-  if (window.ResizeObserver && root.value) {
-    roInstance = new ResizeObserver(entries => {
-      for (const entry of entries) {
-        const w = entry.contentRect.width
-        measureAndMaybeEmit(w)
-      }
-    })
-    roInstance.observe(root.value)
-  } else {
-    onResizeFn = () => {
-      const el = root.value
-      if (!el) return
-      const w = el.getBoundingClientRect().width
-      measureAndMaybeEmit(w)
-    }
-    window.addEventListener('resize', onResizeFn)
-    onResizeFn()
-  }
-})
-
-onBeforeUnmount(() => {
-  if (roInstance) roInstance.disconnect()
-  if (onResizeFn) window.removeEventListener('resize', onResizeFn)
 })
 </script>
 

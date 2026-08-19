@@ -18,7 +18,7 @@ import Sidebar from "../components/Sidebar.vue";
 import Head from "../components/Head.vue";
 import {ref} from "vue";
 
-const isCollapsed = ref(true)
+const isCollapsed = ref(false)
 function toggleCollapsed(){
   isCollapsed.value = !isCollapsed.value;
 }
