@@ -67,8 +67,7 @@ const formData = ref({ name: ''})
 const search = computed(() => formData.value.name.trim())
 
 // 解包
-const packageList = computed(() => {
-  console.log("DEBUG:isCompute:", search.value)
+const packageList = computed<PackageItem[]>(() => {
   // 检查是否有数据
   if (!responseData.value || responseData.value.length === 0) {
     return [];
@@ -131,7 +130,7 @@ onMounted(() => {
   padding: 0;
 }
 
-.side-bar.collapsed .search-wrapper,
+.side-bar.collapsed,
 .side-bar.collapsed .package-list {
   display: none;
 }
