@@ -18,7 +18,7 @@
       <div v-for="item in packageList"
       :key="item.id"
       class="package">
-        <button @click="chooseHandle" class="package-button">
+        <button @click="chooseHandle" class="package-button" :title="item.alias ? `${item.name}(${item.alias})` : `${item.name}`">
           <span>{{ item.name }}</span>
         </button>
         <button @click="pinHandle(item)" class="pin-button">
