@@ -2,7 +2,7 @@
 <div class="root" :class="{ collapsed: isCollapsed }">
   <div class="sidebar" ref="root">
     <!--搜索栏-->
-    <SearchInput v-model="formData.name"></SearchInput>
+    <SearchInput class="search" v-model="formData.name" :isSimple=false></SearchInput>
     <!--语音包列表-->
     <el-scrollbar class="package-list">
       <!--全部语音固定置顶-->
@@ -143,10 +143,10 @@ onMounted(() => {
   width: 25%;
   height: 100%;
   min-height: 0;
-  border-top: 1px solid #141417;
   background: var(--sidebar);
   overflow: hidden;
   transition: width 0.4s ease, padding 0.3s ease;
+  border-radius: 0 10px 0 0;
 }
 
 .sidebar {
@@ -160,6 +160,10 @@ onMounted(() => {
 .root.collapsed {
   width: 0;
   padding: 0;
+}
+
+.search {
+  margin: 20px 15px 0 15px;
 }
 
 .package-list {

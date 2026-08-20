@@ -1,12 +1,24 @@
 <template>
   <div :class="'search-wrapper'">
-    <input type="text" v-model="search" class="search-input">
-    <i class="icon icon-a-Searchbar_selected"></i>
+    <input type="text" class="search-input"
+           :value="modelValue"
+            @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+            @blur="emit('blur', ($event.target as HTMLInputElement).value)">
+    <i class="icon icon-a-Searchbar_selected" v-if="!isSimple"></i>
+    <i class="icon icon-search" v-if="isSimple"></i>
   </div>
 </template>
 
-<script setup>
-const search=defineModel()
+<script setup lang="ts">
+const props = defineProps<{
+  isSimple: Boolean,
+  modelValue: String,
+}>();
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void,
+  (e: 'blur', value: string): void,
+}>();
 </script>
 
 <style scoped>
@@ -14,7 +26,6 @@ const search=defineModel()
   display: flex;
   align-items: center;
   flex: 1;
-  margin: 20px 15px 0 15px;
   background-color: var(--background);
   border-radius: 5px;
   padding: 0 12px;

@@ -24,7 +24,7 @@ export const userThemeStore = defineStore('theme',() => {
             textColor: '#eff6fd',
             primaryColor: '#4c8bf5',
             secondaryColor: '#2d2d2d',
-            windowControl_bg: '#111114',
+            windowControl_bg: '#0c0c0c',
             hover: 'rgb(230 230 230 / 0.3)',
         }
     };
