@@ -19,4 +19,7 @@ export default defineConfig({
     outDir: "dist",
     assetsDir: "assets",
   },
+  server: {
+    port: 52798
+  }
 })

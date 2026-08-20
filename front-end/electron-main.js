@@ -26,7 +26,7 @@ function createWindow() {
   })
 
   // 加载Vite开发服务器地址（开发环境）
-  win.loadURL('http://localhost:5173')
+  win.loadURL('http://localhost:52798')
 
   // 打开开发者工具（方便调试）
   win.webContents.openDevTools()
