@@ -39,9 +39,9 @@
 
 <script setup lang="ts">
 
-import SearchInput from "./SearchInput.vue";
+import SearchInput from "../components/SearchInput.vue";
 import {computed, onMounted, ref} from "vue";
-import apiClient from "../utils/axios_config.js";
+import apiClient from "../config/axios_config.js";
 
 interface PackageItem{
   id: number

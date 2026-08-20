@@ -14,8 +14,8 @@
 </template>
 
 <script setup>
-import Sidebar from "../components/Sidebar.vue";
-import Head from "../components/Head.vue";
+import Sidebar from "./Sidebar.vue";
+import Head from "./Head.vue";
 import {ref} from "vue";
 
 const isCollapsed = ref(false)
