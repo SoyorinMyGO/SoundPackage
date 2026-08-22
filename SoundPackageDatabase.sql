@@ -4,7 +4,6 @@ CREATE TABLE voice (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) UNIQUE NOT NULL,
     alias VARCHAR(50),
-    position VARCHAR(100) NOT NULL,
     length INT NOT NULL CHECK (length < 600000),
     used_times INT DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
