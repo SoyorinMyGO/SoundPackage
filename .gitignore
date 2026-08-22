@@ -406,6 +406,14 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,pycharm,webstorm,python,vuejs,vue
 
+# 音频文件
+*.mp3
+*.wav
+*.m4a
+*.ogg
+*.flac
+*.webm
+
 # 自定义忽略
 接口开发说明文档.md
 css笔记.md
