@@ -12,11 +12,11 @@ router = APIRouter(prefix="/api/IO", tags=['io'])
 
 # 导入语音包活语音文件
 @router.post("/import/{position}")
-async def import_files_router(position: str = Path(..., description='导入文件路径'),
+async def import_file_router(position: str = Path(..., description='导入文件路径'),
                             db: AsyncSession = Depends(get_db)
 ):
     try:
-        await IO.import_files_crud(position, db)
+        await IO.import_file_crud(position, db)
         success_response(message='文件导入成功', data=None)
     except FileNotFoundError:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='不存在的文件或文件夹')
