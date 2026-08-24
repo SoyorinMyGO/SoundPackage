@@ -11,6 +11,8 @@ export const userThemeStore = defineStore('theme',() => {
             sidebar: '#EFF6FD',
             background: '#FFFFFF',
             textColor: '#333333',
+            borerColor: '#FFFFFF',
+            cardColor: '#EFF6FD',
             primaryColor: '#1989fa',
             secondaryColor: '#f5f5f5',
             windowControl_bg: '#FFFFFF',
@@ -22,6 +24,8 @@ export const userThemeStore = defineStore('theme',() => {
             sidebar: '#0D0D11',
             background: '#111114',
             textColor: '#eff6fd',
+            borderColor: '#1c1b1b',
+            cardColor: '#0c0c0c',
             primaryColor: '#4c8bf5',
             secondaryColor: '#2d2d2d',
             windowControl_bg: '#0c0c0c',
@@ -58,6 +62,8 @@ export const userThemeStore = defineStore('theme',() => {
         document.documentElement.style.setProperty('--secondaryColor', theme.secondaryColor)
         document.documentElement.style.setProperty('--windowControl_bg', theme.windowControl_bg)
         document.documentElement.style.setProperty('--hover', theme.hover)
+        document.documentElement.style.setProperty('--cardColor', theme.cardColor)
+        document.documentElement.style.setProperty('--borderColor', theme.borderColor)
     }
 
     function initTheme() {

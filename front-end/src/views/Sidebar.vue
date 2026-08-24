@@ -85,7 +85,7 @@ const packageList = computed<PackageItem[]>(() => {
   const keyword = search.value
   // 检查搜索列表
   if (!keyword) {
-    console.log('无搜索词返回全部', responseData.value);
+    console.log('DEBUG(package_list):返回全部', responseData.value);
     return responseData.value;
   }
 

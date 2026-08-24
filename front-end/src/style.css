@@ -24,6 +24,8 @@
   --secondaryColor: '';
   --windowControl_bg: '';
   --hover: '';
+  --cardColor: '';
+  --borderColor: '';
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;

@@ -6,7 +6,6 @@
       <i class="icon icon-unfold" v-if="isCollapsed"></i>
       <i class="icon icon-fold" v-if="!isCollapsed"></i>
     </button>
-    <span>{{ formData.name }}</span>
   </div>
   <!--搜索栏-->
   <div class="search-group">
@@ -26,7 +25,7 @@
 
 <script setup lang="ts">
 import SearchInput from "../components/SearchInput.vue";
-import {computed, ref} from "vue";
+import {computed, Ref, ref, UnwrapRef} from "vue";
 
 defineProps({
   isCollapsed: Boolean
@@ -35,7 +34,7 @@ defineProps({
 const emit = defineEmits(["toggle", "submit"]);
 
 // 搜索栏关键字
-const formData: string = ref('')
+const formData: Ref<UnwrapRef<string>, UnwrapRef<string> | string> = ref('')
 const search = computed(() => formData.value.trim())
 
 function handleInput(value: string) {
@@ -43,7 +42,6 @@ function handleInput(value: string) {
 }
 
 function handleBlur() {
-  console.log('DEBUG:', search.value)
   emit('submit', search.value)
 }
 </script>
