@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/voice", tags=["voice"])
 @router.get("")
 async def get_voice_list_router(
         package_id: int = Query(..., description='语音包id'),
-        tag_ids: list[int] = Query(..., description='选中词条的id'),
+        tag_ids: Optional[list[int]] | None = Query(None, description='选中词条的id'),
         db: AsyncSession = Depends(get_db)
 ):
     data = await voice.get_voice_list_crud(package_id, tag_ids, db)

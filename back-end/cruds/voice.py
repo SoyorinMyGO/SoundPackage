@@ -1,4 +1,4 @@
-from typing import Any, Sequence
+from typing import Any, Sequence, Optional
 
 from sqlalchemy import select, and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,12 +9,12 @@ from models.VoiceBelongPackage import VoiceBelongPackage
 from models.VoiceBelongTag import VoiceBelongTag
 
 
-async def get_voice_list_crud(package_id: int, selected_tag_ids: list[int], db: AsyncSession) -> Sequence[Any]:
+async def get_voice_list_crud(package_id: int, selected_tag_ids: Optional[list[int]] | None, db: AsyncSession) -> Sequence[Any]:
     """获取语音列表
 
     Args:
         package_id(int): 选择的语音包id
-        selected_tag_ids(list[int]): 选择的筛选词条
+        selected_tag_ids(Optional[list[int]] | None): 选择的筛选词条
         db(AsyncSession): 数据库会话
 
     Returns:
