@@ -16,6 +16,7 @@ CREATE TABLE package (
     name VARCHAR(50) UNIQUE NOT NULL,
     alias VARCHAR(50),
     isTop BOOLEAN DEFAULT FALSE NOT NULL ,
+    tag VARCHAR(500) DEFAULT '',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -38,17 +39,7 @@ CREATE TABLE voice_belong_package (
     UNIQUE KEY (voice_id, package_id)
 );
 
--- 5. tag_related 表（标签层级关系）
-CREATE TABLE tag_related (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    parent_id INT NOT NULL,
-    child_id INT NOT NULL,
-    FOREIGN KEY (parent_id) REFERENCES tag(id),
-    FOREIGN KEY (child_id) REFERENCES tag(id),
-    UNIQUE KEY (parent_id, child_id)
-);
-
--- 6. voice_belong_tag 表（修正表名和字段名）
+-- 5. voice_belong_tag 表（修正表名和字段名）
 CREATE TABLE voice_belong_tag (
     id INT PRIMARY KEY AUTO_INCREMENT,
     tag_id INT NOT NULL,
@@ -74,7 +65,3 @@ CREATE INDEX idx_vbp_package_id ON voice_belong_package(package_id);
 -- 4. voice_belong_tag 表
 CREATE INDEX idx_vbt_tag_id ON voice_belong_tag(tag_id);
 CREATE INDEX idx_vbt_voice_id ON voice_belong_tag(voice_id);
-
--- 5. tag_related 表
-CREATE INDEX idx_tr_parent_id ON tag_related(parent_id);
-CREATE INDEX idx_tr_child_id ON tag_related(child_id);
