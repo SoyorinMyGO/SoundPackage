@@ -6,9 +6,9 @@
     <!--主内容-->
     <div class="content">
       <!-- 侧边栏 -->
-      <Sidebar :isCollapsed="isCollapsed" @collapse-request="setCollapsed"/>
+      <Sidebar :isCollapsed="isCollapsed" @collapse-request="setCollapsed" @choose="setPackageChoose"/>
       <!-- 主视图 -->
-      <HomeMain :search="keyword"/>
+      <HomeMain :search="keyword" :packageChoose="packageChoose"/>
     </div>
   </div>
 </template>
@@ -19,8 +19,11 @@ import Head from "./Head.vue";
 import {ref} from "vue";
 import HomeMain from "./HomeMain.vue";
 
-// 侧边栏折叠
 const isCollapsed = ref(false)
+const keyword = ref('')
+const packageChoose = ref({id: 0, name: '全部语音'}) // 存储语音包对象，默认为id: name: 全部语音
+
+// 侧边栏折叠
 function toggleCollapsed(){
   isCollapsed.value = !isCollapsed.value;
 }
@@ -29,9 +32,13 @@ function setCollapsed(val){
 }
 
 // 语音搜索
-const keyword = ref('')
 function setSearch(val){
   keyword.value = val;
+}
+
+// 语义包选择
+function setPackageChoose(val){
+  packageChoose.value = val;
 }
 </script>
 

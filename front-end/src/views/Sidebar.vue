@@ -7,7 +7,7 @@
     <el-scrollbar class="package-list">
       <!--全部语音固定置顶-->
       <div class="package">
-        <button @click="chooseHandle" class="package-button">
+        <button @click="chooseHandle({id: 0, name: '全部语音'})" class="package-button">
           <span>全部语音</span>
         </button>
         <button class="pin-button">
@@ -18,7 +18,7 @@
       <div v-for="item in packageList"
       :key="item.id"
       class="package">
-        <button @click="chooseHandle" class="package-button" :title="item.alias ? `${item.name}(${item.alias})` : `${item.name}`">
+        <button @click="chooseHandle({id: item.id, name: item.name})" class="package-button" :title="item.alias ? `${item.name}(${item.alias})` : `${item.name}`">
           <span>{{ item.name }}</span>
         </button>
         <button @click="pinHandle(item)" class="pin-button">
@@ -56,9 +56,15 @@ const props = defineProps({
   isCollapsed: Boolean
 })
 
-const emit = defineEmits(['collapse-request'])
+const emit = defineEmits(["collapse-request", "choose"])
 
 const responseData = ref<PackageItem[]>([])
+// 搜索信息
+const formData = ref({ name: ''})
+const search = computed(() => formData.value.name.trim())
+// 用户信息
+const userAvatorAdr = './assets/avator.jpg'
+const userName = 'soyorin'
 
 // 获取语音包列表
 const get_list = async () => {
@@ -70,10 +76,6 @@ const get_list = async () => {
     console.error(e);
   }
 }
-
-// 搜索信息
-const formData = ref({ name: ''})
-const search = computed(() => formData.value.name.trim())
 
 // 解包
 const packageList = computed<PackageItem[]>(() => {
@@ -98,7 +100,9 @@ const packageList = computed<PackageItem[]>(() => {
 })
 
 // 处理语音包选择
-const chooseHandle = () => {}
+const chooseHandle = (id: number) => {
+  emit("choose", id);
+}
 
 // 处理置顶
 const pinHandle = (item: PackageItem) => {
@@ -123,10 +127,6 @@ const pinHandle = (item: PackageItem) => {
     return new Date(a.updated_at) - new Date(b.updated_at)
   })
 }
-
-// 用户信息
-const userAvatorAdr = './assets/avator.jpg'
-const userName = 'soyorin'
 
 onMounted(() => {
   get_list();

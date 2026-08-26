@@ -1,8 +1,13 @@
 <template>
   <div class="main-view">
+    <!--顶部信息-->
     <div class="top">
-      <span>{{  }}</span>
+      <span>{{ packageChoose.name }}</span>
+      <div class="top-button-group">
+
+      </div>
     </div>
+    <!--语音列表-->
     <el-scrollbar class="card-container">
       <div class="card-grid">
           <ButtonCard :resource="item"
@@ -11,6 +16,7 @@
           />
       </div>
     </el-scrollbar>
+    <!--底部栏-->
     <div class="bottom">
 
     </div>
@@ -18,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import ButtonCard from "../components/ButtonCard.vue";
 import apiClient from "../config/axios_config.js";
 
@@ -34,20 +40,40 @@ interface VoiceItem{
 
 const props = defineProps({
   search: String,
+  packageChoose: {
+    type: Object,
+    default: null,
+  },
 })
 
 const responseData = ref<VoiceItem[]>([]);
-const orderBy = ref("");
-const isDesc = ref(false);
+const orderBy = ref<String>("");
+const isDesc = ref<Number>(false);
+
+// 获取选择的语音包
+const getPackageId = () => {
+  // 如果 packageChoose 不存在或没有 id，返回 0（表示全部）
+  if (!props.packageChoose || !props.packageChoose.id) {
+    return 0;
+  }
+  return props.packageChoose.id;
+}
+
 // 获取语音列表
 const get_list = async() => {
   try {
-    const res = await apiClient.get("/api/voice");
+    const packageId = getPackageId();
+    const params = {
+      package_id: packageId,
+      tag_ids: []
+    }
+    console.log('DEBUG(params):', params)
+    const res = await apiClient.get("/api/voice", {params});
     responseData.value = res.data.data;
-    console.log('DEBUG(voice_list):返回全部', responseData.value);
+    console.log('DEBUG(voice_list):', responseData.value);
   }
   catch (e) {
-    console.error(error);
+    console.error(e);
   }
 }
 
@@ -60,6 +86,19 @@ const voiceList: VoiceItem[] = computed(() => {
   // 默认按照使用次数降序 -> 更新时间降序排序
   return responseData.value;
 })
+
+watch(
+  () => props.packageChoose,
+  (newVal, oldVal) => {
+    // 避免重复请求
+    if (JSON.stringify(newVal) === JSON.stringify(oldVal)) {
+      return;
+    }
+    console.log('packageChoose 变化，重新获取数据');
+    get_list();
+  },
+  { deep: true }
+)
 
 onMounted(() => {
   get_list();
@@ -78,8 +117,17 @@ onMounted(() => {
 }
 
 .top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   height: 50px;
   width: 100%;
+}
+
+.top-button-group {
+  height: 100%;
+  width: 50%;
 }
 
 .card-container {
@@ -89,8 +137,8 @@ onMounted(() => {
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  grid-template-rows: repeat(auto-fit, 45px);
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-rows: repeat(auto-fill, 45px);
   gap: 12px;
   padding: 30px 0 30px 0;
 }

@@ -126,7 +126,7 @@ span {
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: 120px;
+  flex: 1;
   height: 40px;
   padding: 6px;
   border-radius: 8px;
