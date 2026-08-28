@@ -39,7 +39,10 @@ interface VoiceItem{
 }
 
 const props = defineProps({
-  search: String,
+  search: {
+    type: String,
+    dafault: '',
+  },
   packageChoose: {
     type: Object,
     default: null,
@@ -47,8 +50,8 @@ const props = defineProps({
 })
 
 const responseData = ref<VoiceItem[]>([]);
-const orderBy = ref<String>("");
-const isDesc = ref<Number>(false);
+const orderBy = ref<String>("used_times");
+const isDesc = ref<Number>(true);
 
 // 获取选择的语音包
 const getPackageId = () => {
@@ -67,10 +70,8 @@ const get_list = async() => {
       package_id: packageId,
       tag_ids: []
     }
-    console.log('DEBUG(params):', params)
     const res = await apiClient.get("/api/voice", {params});
     responseData.value = res.data.data;
-    console.log('DEBUG(voice_list):', responseData.value);
   }
   catch (e) {
     console.error(e);
@@ -79,12 +80,27 @@ const get_list = async() => {
 
 // 解包
 const voiceList: VoiceItem[] = computed(() => {
+  console.log('DEBUG(get_voiceList): 触发解包计算属性')
   // 检查是否有数据
   if (!responseData.value || responseData.value.length === 0) {
     return [];
   }
+  let result = responseData.value;
+  // 搜索过滤
+  const search: string = props.search;
+  if (search !== '') {
+    result = responseData.value.filter(item => {
+      const lowerKeyword = search.toLowerCase();
+      const nameMatch = item.name && item.name.toLowerCase().includes(lowerKeyword);
+      const aliasMatch = item.alias && item.alias.toLowerCase().includes(lowerKeyword);
+      return nameMatch || aliasMatch;
+    })
+  }
   // 默认按照使用次数降序 -> 更新时间降序排序
-  return responseData.value;
+  if (orderBy.value === "used_times" && isDesc.value === true) {
+    console.log('DEBUG(voiceList):', responseData.value)
+    return result;
+  }
 })
 
 watch(
@@ -123,6 +139,14 @@ onMounted(() => {
   justify-content: space-between;
   height: 50px;
   width: 100%;
+}
+
+.top>span {
+  font-size: 20px;
+  margin: 15px;
+  max-width: 300px;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .top-button-group {

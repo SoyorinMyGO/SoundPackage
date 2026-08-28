@@ -9,11 +9,13 @@
   </div>
   <!--搜索栏-->
   <div class="search-group">
-    <search-input :isSimple=true
-                  :model-value="formData"
-                  @update:modelValue="handleInput"
-                  @blur="handleBlur"
-                  class="search">
+    <search-input
+        ref="searchInputRef"
+        :isSimple=true
+        :model-value="formData"
+        @update:modelValue="handleInput"
+        @blur="handleBlur"
+        class="search">
     </search-input>
   </div>
   <!--右侧按钮组-->
@@ -25,7 +27,7 @@
 
 <script setup lang="ts">
 import SearchInput from "../components/SearchInput.vue";
-import {computed, Ref, ref, UnwrapRef} from "vue";
+import {computed, onMounted, onUnmounted, Ref, ref, UnwrapRef} from "vue";
 
 defineProps({
   isCollapsed: Boolean
