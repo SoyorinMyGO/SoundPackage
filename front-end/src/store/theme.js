@@ -27,7 +27,7 @@ export const userThemeStore = defineStore('theme',() => {
             borderColor: '#1c1b1b',
             cardColor: '#0c0c0c',
             primaryColor: '#4c8bf5',
-            secondaryColor: '#2d2d2d',
+            secondaryColor: '#262626',
             windowControl_bg: '#0c0c0c',
             hover: 'rgb(230 230 230 / 0.3)',
         }

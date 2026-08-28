@@ -1,15 +1,22 @@
 <template>
   <div :class="'search-wrapper'">
-    <input type="text" class="search-input"
-           :value="modelValue"
-            @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-            @blur="emit('blur', ($event.target as HTMLInputElement).value)">
+    <input
+        ref="inputRef"
+        type="text"
+        :value="modelValue"
+        @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+        @blur="emit('blur', ($event.target as HTMLInputElement).value)"
+        class="search-input"
+    >
     <i class="icon icon-a-Searchbar_selected" v-if="!isSimple"></i>
+    <kbd v-if="isSimple">Ctrl K</kbd>
     <i class="icon icon-search" v-if="isSimple"></i>
   </div>
 </template>
 
 <script setup lang="ts">
+import {ref} from "vue";
+
 const props = defineProps<{
   isSimple: Boolean,
   modelValue: String,
@@ -19,9 +26,32 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void,
   (e: 'blur', value: string): void,
 }>();
+
+const inputRef = ref<HTMLInputElement | null>(null);
+
+defineExpose({
+  focus: () => {
+    inputRef.value?.focus();
+  },
+  select: () => {
+    inputRef.value?.select();
+  },
+  blur: () => {
+    if (inputRef.value?.blur) inputRef.value.blur();
+  }
+})
 </script>
 
 <style scoped>
+kbd {
+  margin: 5px;
+  padding: 0 3px 0 3px;
+  font-size: 15px;
+  color: var(--secondaryColor);
+  border: 2px solid var(--secondaryColor);
+  border-radius: 6px;
+}
+
 .search-wrapper {
   display: flex;
   align-items: center;
