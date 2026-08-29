@@ -19,7 +19,7 @@
     <i v-if="!isLoop" class="icon-unloop"></i>
   </button>
   <!--语音名（去后缀）-->
-  <span>{{ nameWithoutSuffix }}</span>
+  <span :title="fullName">{{ nameWithoutSuffix }}</span>
 </div>
 </template>
 
@@ -35,6 +35,7 @@ const props = defineProps({
 })
 
 const fileName = ref<string>('');
+const alias = ref<string | null>('');
 const audioRef = ref<HTMLAudioElement | null>(null) // 媒体对象
 const isPause = ref<boolean>(true);  // 是否暂停
 const isLoop = ref<boolean>(false);
@@ -45,6 +46,14 @@ const nameWithoutSuffix = computed(() => {
     return '';
   }
   return fileName.value.split('.')[0];
+})
+
+// 悬浮显示的全名（名字+（别名））
+const fullName = computed(() => {
+  if (!alias.value) {
+    return fileName.value;
+  }
+  return `${filename.value}(${alias.value})`;
 })
 
 // 获取文件路径
