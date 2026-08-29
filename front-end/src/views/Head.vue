@@ -19,9 +19,6 @@
     </search-input>
   </div>
   <!--右侧按钮组-->
-  <div class="right-button-group">
-
-  </div>
 </div>
 </template>
 

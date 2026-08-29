@@ -4,7 +4,25 @@
     <div class="top">
       <span>{{ packageChoose.name }}</span>
       <div class="top-button-group">
-
+        <button @click="descHandle" class="desc-button">
+          <i class="icon-down" v-if="isDesc"></i>
+          <i class="icon-up" v-if="!isDesc"></i>
+        </button>
+        <el-dropdown placement="bottom">
+            <el-button id="sort-menu">
+              <i class="icon-sort"></i>
+            </el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item @click="">desc</el-dropdown-item>
+              <el-dropdown-item @click="">sort</el-dropdown-item>
+              <el-dropdown-item @click="">filt</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+        <button class="filter-button">
+          <i class="icon-filter"></i>
+        </button>
       </div>
     </div>
     <!--语音列表-->
@@ -53,6 +71,7 @@ const responseData = ref<VoiceItem[]>([]);
 const orderBy = ref<String>("used_times");
 const isDesc = ref<Number>(true);
 
+//初始化
 // 获取选择的语音包
 const getPackageId = () => {
   // 如果 packageChoose 不存在或没有 id，返回 0（表示全部）
@@ -122,6 +141,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
+i {
+  font-family: "iconfont", serif;
+}
+
 .main-view {
   display: flex;
   flex-direction: column;
@@ -150,8 +173,41 @@ onMounted(() => {
 }
 
 .top-button-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: end;
   height: 100%;
   width: 50%;
+  margin: 0 30px 0 30px;
+}
+
+.top-button-group button {
+  width: 30px;
+  height: 30px;
+  background-color: var(--primaryColor);
+}
+
+/*取消el-dropdown默认的边缘*/
+.el-button {
+  border-radius: 0;
+  border-left: 1px solid var(--borderColor);
+  border-right: 1px solid var(--borderColor);
+  border-top: none;
+  border-bottom: none;
+}
+.desc-button {
+  border-radius: 5px 0 0 5px;
+  border: none;
+}
+.filter-button {
+  border-radius: 0 5px 5px 0;
+  border: none;
+}
+
+.top-button-group i {
+  font-size: 20px;
+  color: var(--textColor);
 }
 
 .card-container {
