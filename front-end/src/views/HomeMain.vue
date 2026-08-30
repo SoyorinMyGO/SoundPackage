@@ -14,9 +14,9 @@
             </el-button>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item @click="">desc</el-dropdown-item>
-              <el-dropdown-item @click="">sort</el-dropdown-item>
-              <el-dropdown-item @click="">filt</el-dropdown-item>
+              <el-dropdown-item @click="fieldHandle('used_times')">使用次数</el-dropdown-item>
+              <el-dropdown-item @click="fieldHandle('name')">名称</el-dropdown-item>
+              <el-dropdown-item @click="fieldHandle('updated_at')">更新日期</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -29,7 +29,7 @@
     <el-scrollbar class="card-container">
       <div class="card-grid">
           <ButtonCard :resource="item"
-                      v-for="item in voiceList"
+                      v-for="item in sortedList"
                       :key="item.id"
           />
       </div>
@@ -68,7 +68,7 @@ const props = defineProps({
 })
 
 const responseData = ref<VoiceItem[]>([]);
-const orderBy = ref<String>("used_times");
+const field = ref<String>("used_times");
 const isDesc = ref<Number>(true);
 
 //初始化
@@ -98,29 +98,56 @@ const get_list = async() => {
 }
 
 // 解包
-const voiceList: VoiceItem[] = computed(() => {
-  console.log('DEBUG(get_voiceList): 触发解包计算属性')
+const voiceDatas: VoiceItem[] = computed(() => {
   // 检查是否有数据
   if (!responseData.value || responseData.value.length === 0) {
     return [];
   }
-  let result = responseData.value;
+  return responseData.value;
+})
+
+// 按字段过滤排序
+const sortedList = computed(() => {
+  let list = [...voiceDatas.value];
   // 搜索过滤
   const search: string = props.search;
   if (search !== '') {
-    result = responseData.value.filter(item => {
+    list = responseData.value.filter(item => {
       const lowerKeyword = search.toLowerCase();
       const nameMatch = item.name && item.name.toLowerCase().includes(lowerKeyword);
       const aliasMatch = item.alias && item.alias.toLowerCase().includes(lowerKeyword);
       return nameMatch || aliasMatch;
     })
   }
-  // 默认按照使用次数降序 -> 更新时间降序排序
-  if (orderBy.value === "used_times" && isDesc.value === true) {
-    console.log('DEBUG(voiceList):', responseData.value)
-    return result;
-  }
+  const derection = isDesc.value === true ? -1 : 1;
+  return list.sort((a, b) => {
+    let valA = a[field.value];
+    let valB = b[field.value];
+    let result = 0;
+    if (field === 'name') {
+      // 按名字进行排序
+      result = valA.localeCompare(valB, 'zh-Hans-CN', {sensitivity: 'base'});
+    } else {
+      // 数字或日期：a > b 返回 1，a < b 返回 -1
+      result = (valA > valB ? 1 : (valA < valB ? -1 : 0));
+    }
+    return derection * result;
+  })
 })
+
+// 事件处理
+// 改变是否降序排列
+const descHandle = () => {
+  isDesc.value = !isDesc.value;
+  return;
+}
+
+// 改变排序依据
+const fieldHandle = (val: string) => {
+  field.value = val;
+  console.log('DEBUG(field):', field.value)
+  return;
+}
 
 watch(
   () => props.packageChoose,
@@ -129,7 +156,6 @@ watch(
     if (JSON.stringify(newVal) === JSON.stringify(oldVal)) {
       return;
     }
-    console.log('packageChoose 变化，重新获取数据');
     get_list();
   },
   { deep: true }
