@@ -8,15 +8,15 @@
           <i class="icon-down" v-if="isDesc"></i>
           <i class="icon-up" v-if="!isDesc"></i>
         </button>
-        <el-dropdown placement="bottom">
+        <el-dropdown placement="bottom" trigger="click">
             <el-button id="sort-menu">
               <i class="icon-sort"></i>
             </el-button>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item @click="fieldHandle('used_times')">使用次数</el-dropdown-item>
-              <el-dropdown-item @click="fieldHandle('name')">名称</el-dropdown-item>
-              <el-dropdown-item @click="fieldHandle('updated_at')">更新日期</el-dropdown-item>
+              <el-dropdown-item class="custom-menu-item" @click="fieldHandle('used_times')">使用次数</el-dropdown-item>
+              <el-dropdown-item class="custom-menu-item" @click="fieldHandle('name')">名称</el-dropdown-item>
+              <el-dropdown-item class="custom-menu-item" @click="fieldHandle('updated_at')">更新日期</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -229,6 +229,19 @@ i {
 .filter-button {
   border-radius: 0 5px 5px 0;
   border: none;
+}
+
+/*取消默认动效*/
+:deep(.el-tooltip__trigger:focus-visible) {
+  outline: none !important;
+}
+
+.top-button-group>button:active {
+  transform: scale(0.95);
+}
+
+.top-button-group>.el-dropdown:active {
+  transform: scale(0.95);
 }
 
 .top-button-group i {
