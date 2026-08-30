@@ -36,7 +36,7 @@ async def get_voice_list_crud(package_id: int, selected_tag_ids: Optional[list[i
         query = (
             select(Voice)
             .where(Voice.id.in_(select(package_voice_subquery.c.voice_id)))
-            .order_by(Voice.used_times.desc(), Voice.created_at.desc())
+            .order_by(Voice.used_times.desc(), Voice.updated_at.desc())
         )
         result = await db.execute(query)
         return result.scalars().all()
