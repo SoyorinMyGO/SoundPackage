@@ -11,7 +11,7 @@ export const userThemeStore = defineStore('theme',() => {
             sidebar: '#EFF6FD',
             background: '#FFFFFF',
             textColor: '#333333',
-            borerColor: '#FFFFFF',
+            borderColor: '#E5E7EB',
             cardColor: '#EFF6FD',
             primaryColor: '#1989fa',
             secondaryColor: '#f5f5f5',

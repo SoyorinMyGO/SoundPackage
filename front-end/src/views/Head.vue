@@ -2,9 +2,13 @@
 <div class="head">
   <!--左侧按钮组-->
   <div class="left-button-group">
-    <button @click="emit('toggle')" id="toggleButton">
+    <button @click="emit('toggle')">
       <i class="icon icon-unfold" v-if="isCollapsed"></i>
       <i class="icon icon-fold" v-if="!isCollapsed"></i>
+    </button>
+    <button>
+      <i class="icon icon-moon" v-if="isDark"></i>
+      <i class="icon icon-sun" v-if="!isDark"></i>
     </button>
   </div>
   <!--搜索栏-->
@@ -19,6 +23,17 @@
     </search-input>
   </div>
   <!--右侧按钮组-->
+  <div class="right-button-group">
+    <button>
+      <i class="icon-import"></i>
+    </button>
+    <button>
+      <i class="icon-export"></i>
+    </button>
+    <button>
+      <i class="icon-file-manager"></i>
+    </button>
+  </div>
 </div>
 </template>
 
@@ -31,6 +46,7 @@ defineProps({
 })
 
 const emit = defineEmits(["toggle", "submit"]);
+const isDark = ref<boolean>(true);
 
 // 搜索栏关键字
 const formData: Ref<UnwrapRef<string>, UnwrapRef<string> | string> = ref('');
@@ -71,6 +87,23 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+i {
+  font-family: "iconfont", serif;
+  color: var(--primaryColor);
+}
+
+button {
+  border: none;
+  border-radius: 15px;
+  background: transparent;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+}
+
 .head {
   display: flex;
   flex-direction: row;
@@ -83,9 +116,22 @@ onUnmounted(() => {
 }
 
 .left-button-group {
+  height: 100%;
   display: flex;
   flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
   flex: 1;
+  margin: 10px;
+}
+
+.left-button-group i {
+  font-size: 17px;
+}
+
+/* 按钮动效 */
+.left-button:active {
+  transform: scale(0.9)
 }
 
 .search-group {
@@ -97,29 +143,15 @@ onUnmounted(() => {
 .right-button-group {
   display: flex;
   flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
   flex: 1;
+  margin: 10px;
 }
 
-#toggleButton {
-  margin-left: 10px;
-  width: 30px;
-  height: 30px;
-  align-self: flex-start;
-  border: none;
-  border-radius: 15px;
-  background: transparent;
-  color: #ffffff;
-  position: relative;
-  overflow: hidden;
-}
-/* 按钮动效 */
-#toggleButton:active {
-  transform: scale(0.9)
-}
-#toggleButton i{
-  font-family: "iconfont",serif !important;
-  color: var(--primaryColor)
-}
+.icon-import { font-size: 23px; }
+.icon-export { font-size: 22px; }
+.icon-file-manager { font-size: 18px; }
 
 .search {
   flex: 3;

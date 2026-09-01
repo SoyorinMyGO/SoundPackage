@@ -2,8 +2,13 @@
   <div class="main-view">
     <!--顶部信息-->
     <div class="top">
+      <!--当前语音包名称-->
       <span>{{ packageChoose.name }}</span>
+
       <div class="top-button-group">
+        <!--选择渲染模式-->
+
+        <!--筛选语音包-->
         <button @click="descHandle" class="desc-button">
           <i class="icon-down" v-if="isDesc"></i>
           <i class="icon-up" v-if="!isDesc"></i>
@@ -42,9 +47,10 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, ComputedRef, onMounted, ref, watch} from "vue";
 import ButtonCard from "../components/ButtonCard.vue";
 import apiClient from "../config/axios_config.js";
+import getCssVariable from "../utils/get_CSS_variable";
 
 interface VoiceItem{
   id: number;
@@ -69,7 +75,20 @@ const props = defineProps({
 
 const responseData = ref<VoiceItem[]>([]);
 const field = ref<String>("used_times");
-const isDesc = ref<Number>(true);
+const isDesc = ref<boolean>(true);
+// 默认按钮模式渲染
+const renderMode = ref<string>("button");
+// 渲染模式单选框主题色
+const radioFill = computed(() => {
+  const color: string | null = getCssVariable('--primaryColor');
+  console.log("DEBUG(radioFill):", color)
+  return color;
+})
+const radiotext = computed(() => {
+  const color: string | null = getCssVariable('--sidebar')
+  console.log("DEBUG(radioText):", color)
+  return color;
+})
 
 //初始化
 // 获取选择的语音包
@@ -98,7 +117,7 @@ const get_list = async() => {
 }
 
 // 解包
-const voiceDatas: VoiceItem[] = computed(() => {
+const voiceDatas: ComputedRef<VoiceItem[]> = computed(() => {
   // 检查是否有数据
   if (!responseData.value || responseData.value.length === 0) {
     return [];
@@ -121,11 +140,14 @@ const sortedList = computed(() => {
   }
   const derection = isDesc.value === true ? -1 : 1;
   return list.sort((a, b) => {
-    let valA = a[field.value];
-    let valB = b[field.value];
-    let result = 0;
-    if (field === 'name') {
+    const key = field.value as keyof VoiceItem;
+    let valA: string | number = a[key];
+    let valB: string | number = b[key];
+    let result:number;
+    if (field.value === 'name') {
       // 按名字进行排序
+      if (typeof valA !== 'string') valA = String(valA);
+      if (typeof valB !== 'string') valB = String(valB);
       result = valA.localeCompare(valB, 'zh-Hans-CN', {sensitivity: 'base'});
     } else {
       // 数字或日期：a > b 返回 1，a < b 返回 -1
@@ -137,7 +159,7 @@ const sortedList = computed(() => {
 
 // 事件处理
 // 改变是否降序排列
-const descHandle = () => {
+const  descHandle = () => {
   isDesc.value = !isDesc.value;
   return;
 }
@@ -145,7 +167,6 @@ const descHandle = () => {
 // 改变排序依据
 const fieldHandle = (val: string) => {
   field.value = val;
-  console.log('DEBUG(field):', field.value)
   return;
 }
 
@@ -197,6 +218,7 @@ i {
   overflow: hidden;
   white-space: nowrap;
 }
+
 
 .top-button-group {
   display: flex;
