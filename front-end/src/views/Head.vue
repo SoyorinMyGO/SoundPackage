@@ -1,5 +1,5 @@
 <template>
-<div class="head">
+<div class="head glass-background">
   <!--左侧按钮组-->
   <div class="left-button-group">
     <button @click="emit('toggle')">

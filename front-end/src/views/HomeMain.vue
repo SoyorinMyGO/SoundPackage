@@ -1,5 +1,5 @@
 <template>
-  <div class="main-view">
+  <div class="main-view glass-background">
     <!--顶部信息-->
     <div class="top">
       <!--当前语音包名称-->

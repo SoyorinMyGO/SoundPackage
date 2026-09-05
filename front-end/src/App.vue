@@ -1,14 +1,14 @@
 <template>
-  <div class="app">
+  <div class="app" :style="{ backgroundImage: `url(${imgURL})` }">
     <!-- 专门的可拖拽标题栏，仅此区域可拖动 -->
-    <div class="titlebar">
+    <div class="titlebar glass-background">
       <WindowControls />
       <img src="./assets/MyGO.ico" alt="" class="logo" />
       <span class="title">SoYoVoice</span>
     </div>
     <!-- 主内容 -->
     <div class="main-content">
-      <Home />
+      <Home/>
     </div>
   </div>
 </template>
@@ -16,6 +16,9 @@
 <script setup>
 import WindowControls from './components/WindowControl.vue'
 import Home from './views/Home.vue'
+import * as url from "node:url";
+
+const imgURL = new URL("./assets/background.png", import.meta.url).href;
 </script>
 
 <style>
@@ -33,6 +36,7 @@ import Home from './views/Home.vue'
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  background-size: cover;
 }
 
 .titlebar {

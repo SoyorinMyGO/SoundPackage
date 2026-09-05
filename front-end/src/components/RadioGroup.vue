@@ -33,7 +33,7 @@ provide('radioGroup',
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    background-color: var(--sidebar);
+    background-color: var(--background);
     border: 1px solid var(--secondaryColor);
     border-radius: 8px;
     gap: 2px;

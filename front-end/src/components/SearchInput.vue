@@ -56,7 +56,7 @@ kbd {
   display: flex;
   align-items: center;
   flex: 1;
-  background-color: var(--background);
+  background-color: var(--sidebar);
   border-radius: 5px;
   padding: 0 12px;
   min-width: 0;
@@ -69,7 +69,7 @@ kbd {
   min-width: 0;
   border: none;
   border-radius: 5px;
-  background: var(--background);
+  background: transparent;
   color: var(--textColor);
 }
 

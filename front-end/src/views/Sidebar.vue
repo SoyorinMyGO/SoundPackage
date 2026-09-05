@@ -1,5 +1,5 @@
 <template>
-<div class="root" :class="{ collapsed: isCollapsed }">
+<div class="root glass-background" :class="{ 'collapsed': isCollapsed }">
   <div class="sidebar" ref="root">
     <!--搜索栏-->
     <SearchInput class="search" v-model="formData.name" :isSimple=false></SearchInput>
@@ -10,7 +10,7 @@
         <button @click="chooseHandle({id: 0, name: '全部语音'})" class="package-button">
           <span>全部语音</span>
         </button>
-        <button class="pin-button">
+        <button class="pin-button" id="top-pin" :disabled="true">
           <i class="icon-pin"></i>
         </button>
       </div>
@@ -228,7 +228,7 @@ onMounted(() => {
   height: 35px;
   border: none;
   border-radius: 16px;
-  background-color: var(--sidebar);
+  background: transparent;
   color: var(--primaryColor);
   position: relative;
   overflow: hidden;
@@ -237,9 +237,12 @@ onMounted(() => {
   font-size: 22px;
   font-family: "iconfont", serif !important;
 }
+#top-pin {
+  pointer-events: none;
+}
 /* pin按钮动效 */
 .package>.pin-button:active {
-  transform: scale(0.95);
+  transform: scale(0.9);
 }
 .pin-button::after {
   content: '';

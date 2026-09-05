@@ -7,6 +7,7 @@ export const userThemeStore = defineStore('theme',() => {
     const themes = {
         light: {
             name: "light",
+            windowControl_bg: '#FFFFFF',
             head: '#EFF6FD',
             sidebar: '#EFF6FD',
             background: '#FFFFFF',
@@ -15,21 +16,22 @@ export const userThemeStore = defineStore('theme',() => {
             cardColor: '#EFF6FD',
             primaryColor: '#1989fa',
             secondaryColor: '#f5f5f5',
-            windowControl_bg: '#FFFFFF',
             hover: '#FFFFFF',
+            backgroundImg: '',
         },
         dark: {
             name: "dark",
-            head: '#0D0D11',
-            sidebar: '#0D0D11',
-            background: '#111114',
+            windowControl_bg: 'rgb(12 12 12 / 0.8)',
+            head: 'rgb(9 8 8 / 0.8)',
+            sidebar: 'rgb(9 8 8 / 0.8)',
+            background: 'rgb(17 17 20 / 0.8)',
             textColor: '#eff6fd',
             borderColor: '#1c1b1b',
-            cardColor: '#0c0c0c',
+            cardColor: '#151515',
             primaryColor: '#4c8bf5',
-            secondaryColor: '#262626',
-            windowControl_bg: '#0c0c0c',
+            secondaryColor: 'rgb(49 48 48 / 0.9)',
             hover: 'rgb(230 230 230 / 0.3)',
+            backgroundImg: '',
         }
     };
 
