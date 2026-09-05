@@ -7,14 +7,20 @@
 
       <div class="top-button-group">
         <!--选择渲染模式-->
-
+        <RadioGroup class="radio">
+          <RadioButton :icon="ButtonRender" buttonValue="button"
+                       class="leftest-radio-button"></RadioButton>
+          <RadioButton :icon="GridRender" buttonValue="grid"></RadioButton>
+          <RadioButton :icon="DetailRender" buttonValue="detail"
+                       class="rightest-radio-button"></RadioButton>
+        </RadioGroup>
         <!--筛选语音包-->
-        <button @click="descHandle" class="desc-button">
+        <button @click="descHandle" id="desc-button" class="right-button-group">
           <i class="icon-down" v-if="isDesc"></i>
           <i class="icon-up" v-if="!isDesc"></i>
         </button>
         <el-dropdown placement="bottom" trigger="click">
-            <el-button id="sort-menu">
+            <el-button id="sort-menu" class="right-button-group">
               <i class="icon-sort"></i>
             </el-button>
           <template #dropdown>
@@ -25,7 +31,7 @@
             </el-dropdown-menu>
           </template>
         </el-dropdown>
-        <button class="filter-button">
+        <button id="filter-button" class="right-button-group">
           <i class="icon-filter"></i>
         </button>
       </div>
@@ -50,7 +56,8 @@
 import {computed, ComputedRef, onMounted, ref, watch} from "vue";
 import ButtonCard from "../components/ButtonCard.vue";
 import apiClient from "../config/axios_config.js";
-import getCssVariable from "../utils/get_CSS_variable";
+import RadioGroup from "../components/RadioGroup.vue";
+import RadioButton from "../components/RadioButton.vue";
 
 interface VoiceItem{
   id: number;
@@ -78,17 +85,10 @@ const field = ref<String>("used_times");
 const isDesc = ref<boolean>(true);
 // 默认按钮模式渲染
 const renderMode = ref<string>("button");
-// 渲染模式单选框主题色
-const radioFill = computed(() => {
-  const color: string | null = getCssVariable('--primaryColor');
-  console.log("DEBUG(radioFill):", color)
-  return color;
-})
-const radiotext = computed(() => {
-  const color: string | null = getCssVariable('--sidebar')
-  console.log("DEBUG(radioText):", color)
-  return color;
-})
+// 渲染模式变量
+const ButtonRender: string = "icon-button";
+const GridRender: string = "icon-grid";
+const DetailRender: string = "icon-detail";
 
 //初始化
 // 获取选择的语音包
@@ -188,9 +188,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-i {
-  font-family: "iconfont", serif;
-}
+i { font-family: "iconfont", serif; }
 
 .main-view {
   display: flex;
@@ -219,6 +217,17 @@ i {
   white-space: nowrap;
 }
 
+.radio {
+  width: 100px;
+  height: 34px;
+  margin-right: 15px;
+}
+
+.leftest-radio-button { border-radius: 4px 0 0 4px; }
+.rightest-radio-button { border-radius: 0 4px 4px 0; }
+.radio i {
+  font-size: 30px;
+}
 
 .top-button-group {
   display: flex;
@@ -233,6 +242,8 @@ i {
 .top-button-group button {
   width: 30px;
   height: 30px;
+}
+.right-button-group {
   background-color: var(--primaryColor);
 }
 
@@ -244,11 +255,12 @@ i {
   border-top: none;
   border-bottom: none;
 }
-.desc-button {
+
+#desc-button {
   border-radius: 5px 0 0 5px;
   border: none;
 }
-.filter-button {
+#filter-button {
   border-radius: 0 5px 5px 0;
   border: none;
 }
