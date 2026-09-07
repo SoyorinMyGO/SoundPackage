@@ -25,4 +25,4 @@ class Package(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(), comment='更新时间')
 
     def __repr__(self) -> str:
-        return f'<Package(id={self.id}, name={self.name}, alias={self.alias},isTop={self.isTop} , created_at={self.created_at}, updated_at={self.updated_at})'
+        return f'<Package>(id={self.id}, name={self.name}, alias={self.alias}, isTop={self.isTop}, created_at={self.created_at}, updated_at={self.updated_at})'

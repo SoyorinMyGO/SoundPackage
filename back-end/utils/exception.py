@@ -13,12 +13,22 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     """
     处理HTTPException异常
     """
+    print('捕获到HTTPException异常:')
+    error_data = None
+    if DEBUG_MODE:
+        error_data = {
+            "error_type": "HTTPException",
+            "error_detail": exc.detail,
+            "traceback": traceback.format_exc(),
+            "path": str(request.url),
+        }
+
     return JSONResponse(
         status_code=exc.status_code,
         content={
             "code": exc.status_code,
             "message": exc.detail,
-            "data": None
+            "data": error_data
         }
     )
 
@@ -26,6 +36,7 @@ async def integrity_error_handler(request: Request, exc: IntegrityError):
     """
     处理数据库完整性约束错误
     """
+    print('捕获到IntegrityError异常:')
     error_msg = str(exc.orig)
 
     # 判断具体的完整性约束错误
@@ -60,6 +71,7 @@ async def sqlalchemy_error_handle(request: Request, exc: SQLAlchemyError):
     处理SQLAlchemy数据库错误
     """
     # 开发模式下返回详细错误信息
+    print('捕获到SQLAlchemyError异常:')
     error_data = None
     if DEBUG_MODE:
         error_data = {
@@ -82,6 +94,7 @@ async def general_exception_handler(request: Request, exc: Exception):
     """
     处理所有未捕获的异常
     """
+    print('捕获到未处理的异常:')
     # 开发模式下返回详细错误信息
     error_data = None
     if DEBUG_MODE:
