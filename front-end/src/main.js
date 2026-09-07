@@ -3,6 +3,7 @@ import './style.css'
 import App from './App.vue'
 import { userThemeStore } from "./store/theme.js";
 import { createPinia } from "pinia";
+import { nextTick } from 'vue';
 
 const app = createApp(App);
 
@@ -11,11 +12,6 @@ app.use(pinia)
 
 app.mount('#app')
 
-// 挂载当前全局主题
-// const themeStore = userThemeStore()
-// themeStore.initTheme()
-
-import { nextTick } from 'vue';
 nextTick(() => {
     try {
         const themeStore = userThemeStore();

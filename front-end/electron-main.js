@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
+import {registerIpcHandlers} from "./src/utils/open_select_window.ts";
 
 // 获取当前文件所在目录
 const __filename = fileURLToPath(import.meta.url)
@@ -48,6 +49,7 @@ function createWindow() {
 
 // 当 Electron 完成初始化时创建窗口
 app.whenReady().then(() => {
+  registerIpcHandlers()  // 注册 IPC 处理器
   createWindow()
 })
 
@@ -68,7 +70,7 @@ ipcMain.on('window-minimize', () => {
   }
 })
 
-// 最小化
+// 最大化
 ipcMain.on('window-maximize', () => {
   console.log('[main] received window-maximize')
   if (win) {
@@ -83,7 +85,7 @@ ipcMain.on('window-maximize', () => {
 })
 
 // 关闭
-ipcMain.on("window-close", () => {
+ipcMain.on('window-close', () => {
   console.log('[main] received window-close')
   if (win) {
     win.close()
