@@ -18,8 +18,7 @@ class Package(Base):
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment='语音包id')
-    name: Mapped[str] = mapped_column(String, unique=True, nullable=False, comment='语音包名')
-    alias: Mapped[Optional[str]] = mapped_column(String, comment='别名')
+    name: Mapped[str] = mapped_column(String, nullable=False, comment='语音包名')
     isTop: Mapped[bool] = mapped_column(Boolean, default=False,nullable=False , comment='是否置顶')
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(), comment='创建时间')
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(), comment='更新时间')

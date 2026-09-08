@@ -23,9 +23,7 @@ class Voice(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, comment='语音id')
 
-    name: Mapped[str] = mapped_column(String(50), unique=True, nullable=True, comment='语音名')
-
-    alias: Mapped[Optional[str]] = mapped_column(String(50), comment='语音别名')
+    name: Mapped[str] = mapped_column(String(50), nullable=True, comment='语音名')
 
     length: Mapped[int] = mapped_column(Integer, nullable=True, comment='语音长度')
 
