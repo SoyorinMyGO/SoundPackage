@@ -58,6 +58,8 @@ import ButtonCard from "../components/ButtonCard.vue";
 import apiClient from "../config/axios_config.js";
 import RadioGroup from "../components/RadioGroup.vue";
 import RadioButton from "../components/RadioButton.vue";
+import {useLocalStorage} from "../utils/use_storage";
+import {setLocalStorage} from "../utils/local_storage";
 
 interface VoiceItem{
   id: number;
@@ -108,8 +110,17 @@ const get_list = async() => {
       package_id: packageId,
       tag_ids: []
     }
-    const res = await apiClient.get("/api/voice", {params});
-    responseData.value = res.data.data;
+    // 从本地获取
+    let res = useLocalStorage(`voice_info`, null);
+    // 从网络获取
+    if(!res.value) {
+      console.log('DEBUG(get_voice_list):从网络获取数据');
+      let res = await apiClient.get("/api/voice", {params});
+      responseData.value = res.data.data;
+    } else {
+      responseData.value = res.value;
+    }
+    console.log('DEBUG(get_voice_list):', responseData.value);
   }
   catch (e) {
     console.error(e);

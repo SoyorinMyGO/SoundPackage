@@ -19,10 +19,9 @@ async def get_list_router(db: AsyncSession = Depends(get_db)
 
 @router.post("")
 async def add_package_router(name :str = Query(..., min_length=1, max_length=50, description='语音包名称'),
-                             alias :Optional[str] = Query(None, min_length=1, max_length=50, description='语音包别称'),
                              db : AsyncSession = Depends(get_db)
 ):
-    new_package = await crud.add_package_crud(name, db, alias)
+    new_package = await crud.add_package_crud(name, db)
     return success_response(message='添加语音包成功', data=new_package)
 
 @router.post("/{id}/name")

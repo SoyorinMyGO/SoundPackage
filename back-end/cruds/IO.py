@@ -31,7 +31,7 @@ async def import_file_crud(position: str, db: AsyncSession) -> Voice | None:
             # 读取文件元数据
             audio = AudioSegment.from_file(file)
             suffix = file.suffix
-            if suffix not in {'.mp3', '.wav', '.m4a', '.ogg', '.flac', '.webm'}:
+            if suffix not in {'.mp3', '.wav', '.m4a', '.ogg', '.flac', '.webm', '.aac'}:
                 raise FormatError
             name = file.name
             length = len(audio)

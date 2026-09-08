@@ -42,6 +42,8 @@
 import SearchInput from "../components/SearchInput.vue";
 import {computed, onMounted, ref} from "vue";
 import apiClient from "../config/axios_config.js";
+import {useLocalStorage} from "../utils/use_storage";
+import {setLocalStorage} from "../utils/local_storage";
 
 interface PackageItem{
   id: number
@@ -69,8 +71,18 @@ const userName = 'soyorin'
 // 获取语音包列表
 const get_list = async () => {
   try {
-    const res = await apiClient.get("/api/package");
-    responseData.value = res.data.data;
+    //从本地获取数据
+    let res = useLocalStorage('package_info', null);
+    // 从网络获取数据
+    if (!res.value) {
+      console.log('DEBUG(get_package_list):从网络获取数据');
+      let res = await apiClient.get("/api/package");
+      responseData.value = res.data.data;
+      setLocalStorage(`package_info`, responseData.value);
+    } else {
+      responseData.value = res.value
+    }
+    console.log('DEBUG(get_package_list):', responseData.value);
   }
   catch (e) {
     console.error(e);

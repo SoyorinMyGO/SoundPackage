@@ -22,18 +22,17 @@ async def get_list_crud(db: AsyncSession) -> Sequence[Any]:
     return package_list
 
 
-async def add_package_crud(name: str, db: AsyncSession, alias: Optional[str] = None) -> Package:
+async def add_package_crud(name: str, db: AsyncSession) -> Package:
     """新建语音包
 
     Args:
         name(str): 语音包名
-        alias(str): 语音包别称
         db(AsyncSession): 数据库会话
 
     Returns:
         Package: 新建语音包的信息
     """
-    package = Package(name=name, alias=alias)
+    package = Package(name=name)
     db.add(package)
     await db.commit()
     await db.refresh(package)
