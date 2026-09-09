@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import {useLocalStorage} from "../utils/use_storage.ts";
 
 export const userThemeStore = defineStore('theme',() => {
-    const currentTheme = useLocalStorage('theme', 'dark');
+    const currentTheme = useLocalStorage('app_theme', 'dark');
 
     const themes = {
         light: {
@@ -12,12 +12,12 @@ export const userThemeStore = defineStore('theme',() => {
             head: '#EFF6FD',
             sidebar: '#EFF6FD',
             background: '#FFFFFF',
-            textColor: '#333333',
+            textColor: '#424242',
             borderColor: '#E5E7EB',
             cardColor: '#EFF6FD',
-            primaryColor: '#1989fa',
+            primaryColor: '#248ff8',
             secondaryColor: '#f5f5f5',
-            hover: '#FFFFFF',
+            hover: '#dcdcdc',
             backgroundImg: '',
         },
         dark: {
@@ -38,7 +38,7 @@ export const userThemeStore = defineStore('theme',() => {
 
     // getters
     const getCurrentTheme = computed(() => currentTheme.value);
-    const getThemeConfig = computed(() => themes[currentTheme.value]);
+    const getThemeConfig = computed(() => themes[currentTheme.value] ?? themes.dark);
     const getAllThemes = computed(() =>
         Object.keys(themes).map(key => ({
             id: key,
@@ -48,15 +48,20 @@ export const userThemeStore = defineStore('theme',() => {
 
     // actions
     function setTheme(themeName) {
-
+        if (!themeName || !themes[themeName]) {
+            console.warn(`未识别的主题: ${themeName}`)
+            return
+        }
+        currentTheme.value = themeName
+        applyTheme()
     }
 
     function applyTheme() {
         /**
          * 用于应用主题颜色
-         * 通过修改localStorage的方式来加载主体颜色
+         * 通过修改CSS变量来加载主体颜色
          **/
-        const theme = themes[currentTheme.value]
+        const theme = themes[currentTheme.value] ?? themes.dark
         document.documentElement.style.setProperty('--head', theme.head)
         document.documentElement.style.setProperty('--sidebar', theme.sidebar)
         document.documentElement.style.setProperty('--background', theme.background)
@@ -70,6 +75,9 @@ export const userThemeStore = defineStore('theme',() => {
     }
 
     function initTheme() {
+        if (!themes[currentTheme.value]) {
+            currentTheme.value = 'dark'
+        }
         applyTheme()
         console.log("已完成初始化")
     }
@@ -81,6 +89,7 @@ export const userThemeStore = defineStore('theme',() => {
         getThemeConfig,
         getAllThemes,
         setTheme,
+        applyTheme,
         initTheme
     };
 })

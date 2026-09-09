@@ -6,9 +6,9 @@
       <i class="icon icon-unfold" v-if="isCollapsed"></i>
       <i class="icon icon-fold" v-if="!isCollapsed"></i>
     </button>
-    <button>
-      <i class="icon icon-moon" v-if="isDark"></i>
-      <i class="icon icon-sun" v-if="!isDark"></i>
+    <button @click="toggleTheme">
+      <i class="icon icon-moon" v-if="currentTheme === 'dark'"></i>
+      <i class="icon icon-sun" v-if="currentTheme === 'light'"></i>
     </button>
   </div>
   <!--搜索栏-->
@@ -41,6 +41,7 @@
 import SearchInput from "../components/SearchInput.vue";
 import {computed, onMounted, onUnmounted, Ref, ref, UnwrapRef} from "vue";
 import apiClient from "../config/axios_config"
+import { userThemeStore } from "../store/theme.js";
 
 const props = defineProps({
   isCollapsed: Boolean,
@@ -48,6 +49,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(["toggle", "submit"]);
+const themeStore = userThemeStore();
 
 declare global {
   interface Window {
@@ -60,7 +62,7 @@ declare global {
 }
 
 // 主题类型
-const isDark = ref<boolean>(true);
+const currentTheme = computed(() => themeStore.currentTheme);
 // 搜索栏关键字
 const formData: Ref<UnwrapRef<string>, UnwrapRef<string> | string> = ref('');
 const search = computed(() => formData.value.trim());
@@ -88,6 +90,14 @@ const handleKeyDown = (e: KeyboardEvent) => {
     console.log("DEBUG(keyboardWatch): 按下了失焦键");
     searchInputRef.value.blur?.();
   }
+}
+
+// 事件处理
+// 切换主题
+const toggleTheme = () => {
+  console.log('DEBUG(toggleTheme): 切换主题');
+  const nextTheme = currentTheme.value === 'dark' ? 'light' : 'dark';
+  themeStore.setTheme(nextTheme);
 }
 
 // IO方法

@@ -112,8 +112,8 @@ const packageList = computed<PackageItem[]>(() => {
 })
 
 // 处理语音包选择
-const chooseHandle = (id: number) => {
-  emit("choose", id);
+const chooseHandle = (currentPackage: object) => {
+  emit("choose", currentPackage);
 }
 
 // 处理置顶
@@ -218,8 +218,8 @@ onMounted(() => {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, var(--hover) 0%, transparent 70%);
-  opacity: 0;
+  background: radial-gradient(circle, var(--hover) 0%, transparent 80%);
+  opacity: 0.2;
   transition: opacity 0.5s;
 }
 .package-button:hover::after {
