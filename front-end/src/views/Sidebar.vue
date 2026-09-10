@@ -42,14 +42,16 @@
 import SearchInput from "../components/SearchInput.vue";
 import {computed, onMounted, ref} from "vue";
 import apiClient from "../config/axios_config.js";
-import {useLocalStorage} from "../utils/use_storage";
-import {setLocalStorage} from "../utils/local_storage";
+import {useLocalStorage} from "../utils/LocalStorage/use_storage";
+import {setLocalStorage} from "../utils/LocalStorage/local_storage";
+import { insert_voice_belong_package } from "../utils/PackageData/voice_belong_package";
 
 interface PackageItem{
   id: number
   name: string
   alias: string | null
   isTop: boolean
+  voice_list: number[]
   created_at: string
   updated_at: string
 }
@@ -68,6 +70,14 @@ const search = computed(() => formData.value.name.trim())
 const userAvatorAdr = './assets/avator.jpg'
 const userName = 'soyorin'
 
+/**
+ * 数据获取处理逻辑
+ * 本地: 获取语音包列表 => 获取语音包所属语音列表
+ *      获取全部语音信息 ------------------| => 本地筛选语音
+ * 网络: 获取用户信息
+ *           | => 根据用户获取语音包 => 存入本地 => 获取语音包所属语音列表 => 存入本地
+ *           | => 获取全部语音信息 => 存入本地 ------------------------------|   => 本地筛选语音
+ */
 // 获取语音包列表
 const get_list = async () => {
   try {
@@ -78,7 +88,11 @@ const get_list = async () => {
       console.log('DEBUG(get_package_list):从网络获取数据');
       let res = await apiClient.get("/api/package");
       responseData.value = res.data.data;
-      setLocalStorage(`package_info`, responseData.value);
+      // 获取语音包包含的语音列表
+      const packageInfo = await insert_voice_belong_package(responseData.value)
+      console.log('DEBUG(packageInfo)', packageInfo)
+      // 存入本地
+      setLocalStorage(`package_info`, packageInfo);
     } else {
       responseData.value = res.value
     }

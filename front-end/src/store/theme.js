@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import {useLocalStorage} from "../utils/use_storage.ts";
+import {useLocalStorage} from "../utils/LocalStorage/use_storage.ts";
 
 export const userThemeStore = defineStore('theme',() => {
     const currentTheme = useLocalStorage('app_theme', 'dark');

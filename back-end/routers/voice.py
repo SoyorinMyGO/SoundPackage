@@ -8,14 +8,20 @@ from utils.response import success_response
 
 router = APIRouter(prefix="/api/voice", tags=["voice"])
 
-# 获取语音列表
-@router.get("")
-async def get_voice_list_router(
+# 获取筛选后的语音列表
+@router.get("/filt")
+async def get_filt_voice_list_router(
         package_id: int = Query(..., description='语音包id'),
         tag_ids: Optional[list[int]] | None = Query(None, description='选中词条的id'),
         db: AsyncSession = Depends(get_db)
 ):
-    data = await voice.get_voice_list_crud(package_id, tag_ids, db)
+    data = await voice.get_filt_voice_list_crud(package_id, tag_ids, db)
+    return success_response(message='获取语音列表成功', data=data)
+
+# 获取完整的语音列表
+@router.get("")
+async def get_voice_list_router(db: AsyncSession = Depends(get_db)):
+    data = await voice.get_voice_list_crud(db)
     return success_response(message='获取语音列表成功', data=data)
 
 # 将语音批量导入同一语音包

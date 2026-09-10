@@ -9,8 +9,8 @@ from models.VoiceBelongPackage import VoiceBelongPackage
 from models.VoiceBelongTag import VoiceBelongTag
 
 
-async def get_voice_list_crud(package_id: int, selected_tag_ids: Optional[list[int]] | None, db: AsyncSession) -> Sequence[Any]:
-    """获取语音列表
+async def get_filt_voice_list_crud(package_id: int, selected_tag_ids: Optional[list[int]] | None, db: AsyncSession) -> Sequence[Any]:
+    """获取筛选后的语音列表
 
     Args:
         package_id(int): 选择的语音包id
@@ -82,3 +82,16 @@ async def get_voice_list_crud(package_id: int, selected_tag_ids: Optional[list[i
 
     result = await db.execute(query)
     return result.scalars().all()
+
+async def get_voice_list_crud(db: AsyncSession) -> Sequence[Any]:
+    """获取完整的语音列表
+    Args:
+        db(AsyncSession): 数据库会话
+
+    Return:
+        Sequence[Any]: 完整的语音列表
+    """
+    query = select(Voice)
+    result = await db.execute(query)
+    voice_list = result.scalars().all()
+    return voice_list
