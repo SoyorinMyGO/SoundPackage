@@ -2,7 +2,7 @@
   <!-- 主容器 -->
   <div class="main-container">
     <!-- 顶部栏 -->
-    <Head :isCollapsed="isCollapsed" :packageChoose="packageChoose.id" @toggle="toggleCollapsed" @submit="setSearch"/>
+    <Head :isCollapsed="isCollapsed" :packageChoose="packageChoose" @toggle="toggleCollapsed" @submit="setSearch"/>
     <!--主内容-->
     <div class="content">
       <!-- 侧边栏 -->

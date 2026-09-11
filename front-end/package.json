@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "dev:full": "concurrently \"npm run dev\" \"wait-on http://localhost:52798 && electron electron-main.js\" \"cd ..\\back-end && ..\\.venv\\Scripts\\python.exe -m uvicorn main:app --reload --port 24990\""
+    "dev:full": "concurrently \"npm run dev\" \"wait-on http://localhost:52798 && electron electron-main.js\" \"cd ..\\back-end && ..\\.venv\\Scripts\\python.exe -m uvicorn local_main:app --reload --port 24999\""
   },
   "dependencies": {
     "element-plus": "^2.14.5",

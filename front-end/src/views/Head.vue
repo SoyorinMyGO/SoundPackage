@@ -47,13 +47,16 @@
 
 <script setup lang="ts">
 import SearchInput from "../components/SearchInput.vue";
-import {computed, onMounted, onUnmounted, Ref, ref, UnwrapRef} from "vue";
-import { remoteApi } from "../config/axios_config"
+import { computed, onMounted, onUnmounted, Ref, ref, UnwrapRef } from "vue";
+import { remoteApi, localApi } from "../config/axios_config"
 import { userThemeStore } from "../store/theme.js";
+import {getLocalStorage} from "../utils/LocalStorage/local_storage";
+import {Voice} from "../model/Voice";
+import {PackageItem} from "../model/Package";
 
 const props = defineProps({
   isCollapsed: Boolean,
-  packageChoose: Number,
+  packageChoose: Object,
 })
 
 const emit = defineEmits(["toggle", "submit"]);
@@ -151,20 +154,42 @@ const exportPackageHandle = async () => {
     return;
   }
 
-  const file_path = await api.selectDirectory({
+  const filePath = await api.selectDirectory({
     title: '选择目标文件夹',
   })
-  if (file_path) {
-    const id = props.packageChoose;
-    console.log(`DEBUG(selectFile): 参数：id=${id}, position:${file_path}`);
-    const res = await remoteApi.post(
-      `/api/io/export/${id}`,
+  if (filePath) {
+    const packageId = props.packageChoose.id;
+    const voiceInfo = getLocalStorage('voice_info') as Voice[];
+    let packageName: string;
+    let voiceInfoList: Voice[] = [];
+    if (packageId === 0) {
+      packageName = "全部语音"
+      voiceInfoList = voiceInfo
+    } else {
+      packageName = props.packageChoose.name;
+      const packageInfo = getLocalStorage('package_info') as PackageItem[];
+
+      // 获取语音信息
+      const targerPackage = packageInfo.find(item => item.id === packageId);
+      const voiceList = targerPackage?.voice_list ?? [];
+      // 建立id -> voice索引
+      const voiceMap = new Map(voiceInfo.map(v => [v.id, v]))
+      // 获得语音信息列表
+      voiceInfoList = voiceList
+          .map(v => voiceMap.get(v))
+          .filter((v): v is Voice => v != undefined);
+    }
+
+    const exportPackageRequest = {
+      package_name: packageName,
+      position: filePath,
+      voice_list: voiceInfoList,
+    }
+    console.log('DEBUG:(exportPackage):', exportPackageRequest);
+    await localApi.post(
+      `/api/io/export`,
+        exportPackageRequest,
         null,
-      {
-        params: {
-          position: file_path
-        }
-      }
     )
     console.log('DEBUG(export_package): 导出成功')
   } else {

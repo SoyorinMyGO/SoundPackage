@@ -1,28 +1,10 @@
 import {getLocalStorage} from "../LocalStorage/local_storage";
-
-interface Voice{
-  id: number;
-  name: string;
-  alias: string | null;
-  length: number;
-  used_times: number;
-  created_at: string;
-  updated_at: string;
-}
+import { Voice } from "../../model/Voice"
+import { PackageItem } from "../../model/Package"
 
 interface Tag {
   id: number;
   path: string;
-}
-
-interface PackageItem {
-  id: number
-  name: string
-  alias: string | null
-  isTop: boolean
-  voice_list: number[]
-  created_at: string
-  updated_at: string
 }
 
 interface VoiceBelongTag {
