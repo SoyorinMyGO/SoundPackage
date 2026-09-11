@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from configs.db_config import get_db
+from server.configs.db_config import get_db
 
 router = APIRouter(prefix="/test", tags=['test'])
 

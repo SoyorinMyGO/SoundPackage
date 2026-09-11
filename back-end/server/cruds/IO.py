@@ -7,9 +7,9 @@ from pydub import AudioSegment
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.Package import Package
-from models.VoiceBelongPackage import VoiceBelongPackage
-from models.Voice import Voice
+from server.models.Package import Package
+from server.models.VoiceBelongPackage import VoiceBelongPackage
+from server.models.Voice import Voice
 
 
 # 导入语音文件

@@ -2,9 +2,9 @@ from typing import Optional
 from fastapi import APIRouter, Path, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from configs.db_config import get_db
-from cruds import voice
-from utils.response import success_response
+from server.configs.db_config import get_db
+from server.cruds import voice
+from server.utils.response import success_response
 
 router = APIRouter(prefix="/api/voice", tags=["voice"])
 

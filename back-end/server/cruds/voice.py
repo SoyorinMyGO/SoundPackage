@@ -3,10 +3,10 @@ from typing import Any, Sequence, Optional
 from sqlalchemy import select, and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.Tag import Tag
-from models.Voice import Voice
-from models.VoiceBelongPackage import VoiceBelongPackage
-from models.VoiceBelongTag import VoiceBelongTag
+from server.models.Tag import Tag
+from server.models.Voice import Voice
+from server.models.VoiceBelongPackage import VoiceBelongPackage
+from server.models.VoiceBelongTag import VoiceBelongTag
 
 
 async def get_filt_voice_list_crud(package_id: int, selected_tag_ids: Optional[list[int]] | None, db: AsyncSession) -> Sequence[Any]:

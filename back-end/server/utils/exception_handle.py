@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from utils.exception import http_exception_handler, integrity_error_handler, sqlalchemy_error_handle, \
+from server.utils.exception import http_exception_handler, integrity_error_handler, sqlalchemy_error_handle, \
     general_exception_handler
 
 

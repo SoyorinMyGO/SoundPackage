@@ -24,10 +24,18 @@
   </div>
   <!--右侧按钮组-->
   <div class="right-button-group">
-    <button @click="importVoiceFileHandle">
-      <i class="icon-import"></i>
-    </button>
-    <button @click="exportPackageHandle">
+    <el-dropdown placement="bottom" trigger="click">
+      <el-button>
+        <i class="icon-import"></i>
+      </el-button>
+      <template #dropdown>
+        <el-dropdown-menu>
+          <el-dropdown-item @click="importVoiceFileHandle">导入语音</el-dropdown-item>
+          <el-dropdown-item @click="importPackageHandle">导入语音包</el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
+    <button @click="exportPackageHandle" title="导出语音包">
       <i class="icon-export"></i>
     </button>
     <button>
@@ -40,7 +48,7 @@
 <script setup lang="ts">
 import SearchInput from "../components/SearchInput.vue";
 import {computed, onMounted, onUnmounted, Ref, ref, UnwrapRef} from "vue";
-import apiClient from "../config/axios_config"
+import { remoteApi } from "../config/axios_config"
 import { userThemeStore } from "../store/theme.js";
 
 const props = defineProps({
@@ -118,8 +126,13 @@ const importVoiceFileHandle = async () => {
   });
 
   if (files && files.length > 0) {
-    selectedFiles.value = files;
-    console.log('DEBUG(selectFile): 选择的音频文件路径为', selectedFiles.value);
+    console.log('DEBUG(selectFile): 选择的音频文件路径为', files);
+    for (const file of files) {
+      // 本地导入
+
+      // 从网络导入
+      remoteApi.post(`/api/io/import/${file}`)
+    }
   } else {
     console.log('DEBUG(selectFile): 用户取消了音频文件选择');
   }
@@ -144,7 +157,7 @@ const exportPackageHandle = async () => {
   if (file_path) {
     const id = props.packageChoose;
     console.log(`DEBUG(selectFile): 参数：id=${id}, position:${file_path}`);
-    const res = await apiClient.post(
+    const res = await remoteApi.post(
       `/api/io/export/${id}`,
         null,
       {
@@ -230,6 +243,19 @@ button:active {
   flex: 1;
   margin: 10px;
 }
+
+.el-dropdown {
+  border: none;
+  border-radius: 15px;
+  background: transparent;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+}
+
 
 .icon-import { font-size: 23px; }
 .icon-export { font-size: 22px; }

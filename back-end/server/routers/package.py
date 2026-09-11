@@ -1,13 +1,11 @@
-from typing import Optional
-
 from fastapi import APIRouter, Depends, Query, Path, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from configs.db_config import get_db
-from cruds import package as crud
-from utils.response import success_response
-from schemas import Package as schemas
+from server.configs.db_config import get_db
+from server.cruds import package as crud
+from server.utils.response import success_response
+from server.schemas import Package as schemas
 
 router = APIRouter(prefix="/api/package", tags=['package'])
 

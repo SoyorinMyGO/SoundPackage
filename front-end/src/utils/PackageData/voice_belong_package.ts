@@ -1,5 +1,5 @@
 // @ts-ignore
-import apiClient from "../../config/axios_config.js";
+import { remoteApi } from "../../config/axios_config.js";
 
 interface PackageItem{
   id: number
@@ -18,7 +18,7 @@ export async function insert_voice_belong_package(package_list: PackageItem[]): 
             tag_ids: [],
         }
         console.log('DEBUG(voice_belong_package):params-', params);
-        const res = await apiClient.get("/api/voice/filt", { params });
+        const res = await remoteApi.get("/api/voice/filt", { params });
         console.log('DEBUG(voice_belong_package):语音-语音包关系数据', res.data.data);
         item.voice_list = res.data.data.map((voice: any) => voice.id);
     }

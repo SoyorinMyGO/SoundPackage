@@ -41,9 +41,9 @@
 
 import SearchInput from "../components/SearchInput.vue";
 import {computed, onMounted, ref} from "vue";
-import apiClient from "../config/axios_config.js";
-import {useLocalStorage} from "../utils/LocalStorage/use_storage";
-import {setLocalStorage} from "../utils/LocalStorage/local_storage";
+import { remoteApi } from "../config/axios_config.js";
+import { useLocalStorage } from "../utils/LocalStorage/use_storage";
+import { setLocalStorage } from "../utils/LocalStorage/local_storage";
 import { insert_voice_belong_package } from "../utils/PackageData/voice_belong_package";
 
 interface PackageItem{
@@ -86,7 +86,7 @@ const get_list = async () => {
     // 从网络获取数据
     if (!res.value) {
       console.log('DEBUG(get_package_list):从网络获取数据');
-      let res = await apiClient.get("/api/package");
+      let res = await remoteApi.get("/api/package");
       responseData.value = res.data.data;
       // 获取语音包包含的语音列表
       const packageInfo = await insert_voice_belong_package(responseData.value)
@@ -133,7 +133,7 @@ const chooseHandle = (currentPackage: object) => {
 // 处理置顶
 const pinHandle = (item: PackageItem) => {
   //上传数据至数据库
-  apiClient.post(`/api/package/${item.id}/top`, null, {
+  remoteApi.post(`/api/package/${item.id}/top`, null, {
   params: {
     isTop: item.isTop
   }})

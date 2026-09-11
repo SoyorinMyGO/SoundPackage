@@ -4,9 +4,9 @@ from fastapi import APIRouter, Path, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from configs.db_config import get_db
-from cruds import IO
-from utils.response import success_response
+from server.configs.db_config import get_db
+from server.cruds import IO
+from server.utils.response import success_response
 
 router = APIRouter(prefix="/api/io", tags=['io'])
 

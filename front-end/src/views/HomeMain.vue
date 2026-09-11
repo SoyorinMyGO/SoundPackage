@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import {computed, ComputedRef, onMounted, ref, watch} from "vue";
 import ButtonCard from "../components/ButtonCard.vue";
-import apiClient from "../config/axios_config.js";
+import { remoteApi } from "../config/axios_config.js";
 import RadioGroup from "../components/RadioGroup.vue";
 import RadioButton from "../components/RadioButton.vue";
 import { useLocalStorage } from "../utils/LocalStorage/use_storage";
@@ -111,7 +111,7 @@ const get_list = async() => {
     // 从网络获取
     if(!res.value) {
       console.log('DEBUG(get_voice_list):从网络获取数据');
-      let res = await apiClient.get("/api/voice");
+      let res = await remoteApi.get("/api/voice");
       responseData.value = res.data.data;
       // 存入本地
       setLocalStorage("voice_info", responseData.value)

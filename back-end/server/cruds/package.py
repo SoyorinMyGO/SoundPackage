@@ -1,11 +1,11 @@
-from typing import Any, Sequence, Optional
+from typing import Any, Sequence
 from fastapi import HTTPException
 from sqlalchemy import select, update, delete, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from models.Package import Package
-from schemas.Package import PackageChangeRequest
+from server.models.Package import Package
+from server.schemas.Package import PackageChangeRequest
 
 
 async def get_list_crud(db: AsyncSession) -> Sequence[Any]:

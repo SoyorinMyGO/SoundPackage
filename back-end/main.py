@@ -2,8 +2,9 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from routers import voice, test, package, IO
-from utils.exception_handle import register_exception_handlers
+from server.routers import voice, package, IO
+from server.routers import test
+from server.utils.exception_handle import register_exception_handlers
 
 app = FastAPI()
 
