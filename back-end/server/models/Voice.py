@@ -23,11 +23,13 @@ class Voice(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, comment='语音id')
 
-    name: Mapped[str] = mapped_column(String(50), nullable=True, comment='语音名')
+    name: Mapped[str] = mapped_column(String(50), nullable=False, comment='语音名')
 
-    length: Mapped[int] = mapped_column(Integer, nullable=True, comment='语音长度')
+    length: Mapped[int] = mapped_column(Integer, nullable=False, comment='语音长度')
 
     used_times: Mapped[int] = mapped_column(Integer, default=0, comment='使用次数')
+
+    hash_content: Mapped[str] = mapped_column(String(64), nullable=False, comment='语音哈希值')
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(), comment='语音创建时间')
 

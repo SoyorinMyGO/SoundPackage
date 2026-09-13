@@ -40,11 +40,11 @@
 <script setup lang="ts">
 
 import SearchInput from "../components/SearchInput.vue";
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import { remoteApi } from "../config/axios_config.js";
-import { useLocalStorage } from "../utils/LocalStorage/use_storage";
-import { setLocalStorage } from "../utils/LocalStorage/local_storage";
+import { getLocalStorage, setLocalStorage } from "../utils/LocalStorage/local_storage";
 import { insert_voice_belong_package } from "../utils/PackageData/voice_belong_package";
+import {useLocalStorage} from "../utils/LocalStorage/use_storage";
 
 interface PackageItem{
   id: number
@@ -62,6 +62,7 @@ const props = defineProps({
 
 const emit = defineEmits(["collapse-request", "choose"])
 
+const packageInfo = useLocalStorage<PackageItem[] | null>("packageInfo", null);
 const responseData = ref<PackageItem[]>([])
 // 搜索信息
 const formData = ref({ name: ''})
@@ -81,21 +82,21 @@ const userName = 'soyorin'
 // 获取语音包列表
 const get_list = async () => {
   try {
-    //从本地获取数据
-    let res = useLocalStorage('package_info', null);
-    // 从网络获取数据
-    if (!res.value) {
-      console.log('DEBUG(get_package_list):从网络获取数据');
-      let res = await remoteApi.get("/api/package");
-      responseData.value = res.data.data;
-      // 获取语音包包含的语音列表
-      const packageInfo = await insert_voice_belong_package(responseData.value)
-      console.log('DEBUG(packageInfo)', packageInfo)
-      // 存入本地
-      setLocalStorage(`package_info`, packageInfo);
-    } else {
-      responseData.value = res.value
+    const cachedPackage = getLocalStorage<PackageItem[]>('package_info');
+    if (Array.isArray(cachedPackage)) {
+      responseData.value = cachedPackage;
+      console.log('DEBUG(get_package_list):从本地获取数据', responseData.value);
+      return;
     }
+
+    console.log('DEBUG(get_package_list):从网络获取数据');
+    const res = await remoteApi.get('/api/package');
+    responseData.value = Array.isArray(res.data?.data) ? res.data.data : [];
+
+    const packageInfo = await insert_voice_belong_package(responseData.value)
+    console.log('DEBUG(packageInfo)', packageInfo)
+    setLocalStorage('package_info', packageInfo);
+    responseData.value = packageInfo;
     console.log('DEBUG(get_package_list):', responseData.value);
   }
   catch (e) {
@@ -153,6 +154,17 @@ const pinHandle = (item: PackageItem) => {
     return new Date(a.updated_at) - new Date(b.updated_at)
   })
 }
+
+watch(
+    packageInfo,
+    (newVal) => {
+      if (Array.isArray(newVal)) {
+        responseData.value = newVal;
+        console.log('DEBUG(get_package_list):缓存已更新', responseData.value);
+      }
+    },
+    { deep: true , immediate: true }
+)
 
 onMounted(() => {
   get_list();

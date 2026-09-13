@@ -1,33 +1,27 @@
 from mailbox import FormatError
+from unittest import result
 
 from fastapi import APIRouter, Path, Depends, HTTPException, Query
-from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from client.cruds import IO
-from client.schemas.IO import ExportPackageRequest
+from client.schemas.IO import ExportPackageRequest, BatchImportResponse, ImportFileRequest
 from client.utils.response import success_response
 
 router = APIRouter(prefix="/api/io", tags=['io'])
 
 # 导入语音文件
-@router.post("/import/file/{position}")
-async def import_file_router(position: str = Path(..., description='导入文件路径')
-):
-    try:
-        await IO.import_file_crud(position)
-        success_response(message='文件导入成功', data=None)
-    except FileNotFoundError:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='不存在的文件或文件夹')
-    except FormatError:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail='不支持的文件格式')
+@router.post("/import/file")
+async def import_file_router(data: ImportFileRequest):
+    result = await IO.import_files_crud(data.paths)
+    return success_response(message='文件导入成功', data=result)
 
 # 导出语音包
 @router.post("/export")
 async def export_package_router(data: ExportPackageRequest):
     try:
         await IO.export_package_crud(data.package_name, data.position, data.voice_list)
-        success_response(message='语音包导出成功', data=None)
+        return success_response(message='语音包导出成功', data=None)
     except FileNotFoundError:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='不存在的语音包或空语音包')
     except NotADirectoryError:

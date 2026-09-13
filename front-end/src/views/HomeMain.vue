@@ -59,7 +59,6 @@ import { remoteApi } from "../config/axios_config.js";
 import RadioGroup from "../components/RadioGroup.vue";
 import RadioButton from "../components/RadioButton.vue";
 import { useLocalStorage } from "../utils/LocalStorage/use_storage";
-import { setLocalStorage } from "../utils/LocalStorage/local_storage";
 import { getVoiceListOptimized } from "../utils/PackageData/voice_filter"
 
 interface VoiceItem{
@@ -84,6 +83,7 @@ const props = defineProps({
 })
 
 const responseData = ref<VoiceItem[]>([]);
+const voiceInfo = useLocalStorage<VoiceItem[] | null>("voice_info", null);
 const field = ref<String>("used_times");
 const isDesc = ref<boolean>(true);
 // 默认按钮模式渲染
@@ -106,24 +106,34 @@ const getPackageId = () => {
 // 获取语音列表
 const get_list = async() => {
   try {
-    // 从本地获取
-    let res = useLocalStorage(`voice_info`, null);
-    // 从网络获取
-    if(!res.value) {
-      console.log('DEBUG(get_voice_list):从网络获取数据');
-      let res = await remoteApi.get("/api/voice");
-      responseData.value = res.data.data;
-      // 存入本地
-      setLocalStorage("voice_info", responseData.value)
-    } else {
-      responseData.value = res.value;
+    const cachedVoice = voiceInfo.value;
+    if (Array.isArray(cachedVoice)) {
+      responseData.value = cachedVoice;
+      console.log('DEBUG(get_voice_list):从本地获取数据', responseData.value);
+      return;
     }
+
+    console.log('DEBUG(get_voice_list):从网络获取数据');
+    const res = await remoteApi.get("/api/voice");
+    responseData.value = Array.isArray(res.data?.data) ? res.data.data : [];
+    voiceInfo.value = responseData.value;
     console.log('DEBUG(get_voice_list):', responseData.value);
   }
   catch (e) {
     console.error(e);
   }
 }
+
+watch(
+  voiceInfo,
+  (newVal) => {
+    if (Array.isArray(newVal)) {
+      responseData.value = newVal;
+      console.log('DEBUG(get_voice_list):缓存已更新', responseData.value);
+    }
+  },
+  { deep: true, immediate: true }
+)
 
 // 解包
 const voiceDatas: ComputedRef<VoiceItem[]> = computed(() => {

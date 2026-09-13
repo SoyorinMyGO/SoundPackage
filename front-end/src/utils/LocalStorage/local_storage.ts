@@ -7,6 +7,7 @@ export const StorageKeys = {
     VOICEINFO: 'voice_info',        // 语音信息(包含所有语音id、名称与别名)
     TAGINFO: 'tag_info',            // 标签信息(包含所有标签id、名称与路径)
     VOICETAGINFO: 'voice_tag_info', // 语音与标签的关联信息(包含所有语音id、标签id)
+    NEXTID: 'next_id',              // 下一个没有使用的id
 } as const
 
 export function setLocalStorage<T>(key: string, value: T | null = null): void {
@@ -18,9 +19,14 @@ export function setLocalStorage<T>(key: string, value: T | null = null): void {
 * */
     try {
         localStorage.setItem(key, JSON.stringify(value));
-    } catch (e) {
-        console.warn(`写入${key}失败`, e);
-    }
+       if (typeof window !== 'undefined') {
+           window.dispatchEvent(new CustomEvent('local-storage-change', {
+               detail: { key, value },
+           }));
+       }
+   } catch (e) {
+       console.warn(`写入${key}失败`, e);
+   }
 }
 
 export function getLocalStorage<T>(key: string): T | null {
@@ -33,12 +39,22 @@ export function getLocalStorage<T>(key: string): T | null {
 * */
     try {
         const item = localStorage.getItem(key);
-        if(!item) return null;
-        return JSON.parse(item) as T;
-    } catch (e) {
-        console.warn(`读取${key}失败`, e);
-        return null;
-    }
+       if (item === null || item === '') {
+           return null;
+       }
+
+       const parsed = JSON.parse(item);
+       if (parsed === null || parsed === undefined) {
+           removeLocalStorage(key);
+           return null;
+       }
+
+       return parsed as T;
+   } catch (e) {
+       console.warn(`读取${key}失败`, e);
+       removeLocalStorage(key);
+       return null;
+   }
 }
 
 export function removeLocalStorage(key: string): void {
@@ -48,4 +64,9 @@ export function removeLocalStorage(key: string): void {
 *   key(string): 缓存的键
 * */
     localStorage.removeItem(key);
+   if (typeof window !== 'undefined') {
+       window.dispatchEvent(new CustomEvent('local-storage-change', {
+           detail: { key, value: null },
+       }));
+   }
 }

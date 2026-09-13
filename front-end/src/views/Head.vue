@@ -50,8 +50,8 @@ import SearchInput from "../components/SearchInput.vue";
 import { computed, onMounted, onUnmounted, Ref, ref, UnwrapRef } from "vue";
 import { remoteApi, localApi } from "../config/axios_config"
 import { userThemeStore } from "../store/theme.js";
-import {getLocalStorage} from "../utils/LocalStorage/local_storage";
-import {Voice} from "../model/Voice";
+import {getLocalStorage, setLocalStorage} from "../utils/LocalStorage/local_storage";
+import {ImportFileResponse, Voice} from "../model/Voice";
 import {PackageItem} from "../model/Package";
 
 const props = defineProps({
@@ -120,7 +120,7 @@ const importVoiceFileHandle = async () => {
     return;
   }
 
-  const files = await api.selectVoiceFile({
+  const files: string[] = await api.selectVoiceFile({
     title: '选择音频文件',
     filters: [
       { name: '音频文件', extensions: ['wav', 'mp3', 'flac', 'm4a', 'ogg', 'webm'] },
@@ -130,12 +130,26 @@ const importVoiceFileHandle = async () => {
 
   if (files && files.length > 0) {
     console.log('DEBUG(selectFile): 选择的音频文件路径为', files);
-    for (const file of files) {
-      // 本地导入
+    // 本地导入
+    const res = await localApi.post("/api/io/import/file", {paths: files});
+    const results = res.data.data;
+    console.log('DEBUG(import_file):results', results);
+    let nextId = Number(getLocalStorage("next_id") || 1);
+    console.log('DEBUG(import_file):nextId', nextId)
+    const store: Voice[] = getLocalStorage("voice_info") || [];
 
-      // 从网络导入
-      remoteApi.post(`/api/io/import/${file}`)
+    for (const r of results) {
+      const v = r.voice;
+      if (r.status === 'failed') {
+        continue;
+      }
+      v.id = nextId;
+      store.push(v);
+      nextId++;
     }
+    // 将数据存入缓存
+    setLocalStorage("voice_info", store);
+    setLocalStorage("next_id", nextId);
   } else {
     console.log('DEBUG(selectFile): 用户取消了音频文件选择');
   }

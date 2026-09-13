@@ -29,4 +29,4 @@ root_path = Path(__file__).resolve().parent.parent  # 项目根目录路径
 app.include_router(IO.router)
 
 if __name__ == '__main__':
-    uvicorn.run("main:app", host="0.0.0.0", port=24999, reload=True)
+    uvicorn.run("local_main:app", host="0.0.0.0", port=24999, reload=True)

@@ -1,47 +1,85 @@
 import json
-from mailbox import FormatError
+from datetime import datetime
 from pathlib import Path
 import zipfile
 from pydub import AudioSegment
 
 from client.models.Voice import Voice
+from client.schemas.IO import ImportFileResult
+from client.utils.hash import sha256_of_file
 
 
 # 导入语音文件
-# async def import_file_crud(position: str) -> Voice | None:
-#     """导入语音文件
-#
-#     Args:
-#         position(str): 要导入的文件路径
-#
-#     Returns:
-#         Voice: 是否导入成功
-#     """
-#     # 本地导入
-#     file = Path(position)
-#     if file.exists():
-#         # 当前路径对应为文件
-#         if file.is_file():
-#             # 读取文件元数据
-#             audio = AudioSegment.from_file(file)
-#             suffix = file.suffix
-#             if suffix not in {'.mp3', '.wav', '.m4a', '.ogg', '.flac', '.webm', '.aac'}:
-#                 raise FormatError
-#             name = file.name
-#             length = len(audio)
-#             # 下载文件至本地
-#             voice_root = Path(__file__).resolve().parent.parent.parent / 'assets' / 'voices'
-#             dust = voice_root / name
-#             print(dust)
-#             with open(file, "rb") as fr, open(dust, 'wb') as fw:
-#                 data = fr.read()
-#                 fw.write(data)
-#         else:
-#             raise TypeError
-#     # 若文件不存在
-#     else:
-#         raise FileNotFoundError
-#     return None
+# noinspection bad-argument-type
+async def import_files_crud(paths: list[str]) -> list[ImportFileResult] | None:
+    """导入语音文件
+
+    Args:
+        paths(str): 要导入的文件路径
+
+    Returns:
+        Voice: 是否导入成功
+    """
+    # 本地导入
+    results = []
+    parsed = []
+    for p in paths:
+        file = Path(p)
+        if not file.exists():
+            results.append(ImportFileResult(path=p, status="failed", voice=None, error="文件不存在"))
+            continue
+        if not file.is_file():
+            results.append(ImportFileResult(path=p, status="failed", voice=None, error="不是文件"))
+            continue
+        suffix = file.suffix.lower()
+        if suffix not in {'.mp3', '.wav', '.m4a', '.ogg', '.flac', '.webm', '.aac'}:
+            results.append(ImportFileResult(path=p, status="failed", voice=None, error="不支持的格式"))
+            continue
+        parsed.append((p, file))
+
+    hashes = {}
+    for p, file in parsed:
+        try:
+            # 获取文件hash值
+            h = sha256_of_file(file)
+            # 读取文件元数据
+            audio = AudioSegment.from_file(file)
+            length = len(audio)
+            hashes[h] = {
+                "path": p,
+                "file": file,
+                "hash": h,
+                "length": length,
+                "name": file.name
+            }
+        except Exception as e:
+            results.append(ImportFileResult(path=p, status="failed", voice=None, error=str(e)))
+
+    for h, info in hashes.items():
+        voice = Voice(
+            id=None,
+            remote_id=None,
+            name=info["name"],
+            length=info["length"],
+            used_times=0,
+            hash_content=h,
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )
+        # 转移文件
+        suffix = Path(info["path"]).suffix.lower()
+        from local_main import root_path
+        voice_root = root_path / "assets/voices"
+        dust = voice_root / f"{voice.hash_content}{suffix}"
+        if Path(dust).exists():
+            # 若出现hash值相同的文件
+            results.append(ImportFileResult(path=info["path"], status="failed", voice=None, error="文件已存在"))
+            continue
+        with open(info["path"], "rb") as fr, open(dust, 'wb') as fw:
+            while data := fr.read(1024 * 1024):
+                fw.write(data)
+        results.append(ImportFileResult(path=info["path"], status="success", voice=voice))
+    return results
 
 # 导出语音包
 async def export_package_crud(package_name:str, position: str, voice_list: list[Voice]) -> None:
