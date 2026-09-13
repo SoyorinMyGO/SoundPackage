@@ -5,6 +5,7 @@ CREATE TABLE voice (
     name VARCHAR(50) NOT NULL,
     length INT NOT NULL CHECK (length < 600000),
     used_times INT DEFAULT 0,
+    hash_content CHAR(64) NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -52,6 +53,7 @@ CREATE TABLE voice_belong_tag (
 CREATE INDEX idx_voice_length ON voice(length);          -- 按时长筛选
 CREATE INDEX idx_voice_used_times ON voice(used_times);  -- 按使用次数排序
 CREATE INDEX idx_voice_created_at ON voice(created_at);  -- 按创建时间排序
+CREATE UNIQUE INDEX idx_voice_hash ON voice(hash_content); -- 语音hash索引
 
 -- 2. Package 表
 CREATE INDEX idx_package_updated_at ON package(updated_at);
