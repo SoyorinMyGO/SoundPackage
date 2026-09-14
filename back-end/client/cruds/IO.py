@@ -67,9 +67,13 @@ async def import_files_crud(paths: list[str]) -> list[ImportFileResult] | None:
             updated_at=datetime.now(),
         )
         # 转移文件
-        suffix = Path(info["path"]).suffix.lower()
-        from local_main import root_path
+        # 检查父文件夹是否存在
+        from client.local_main import root_path
         voice_root = root_path / "assets/voices"
+        if not Path(voice_root).exists():
+            mkdir(voice_root)
+
+        suffix = Path(info["path"]).suffix.lower()
         dust = voice_root / f"{voice.hash_content}{suffix}"
         if Path(dust).exists():
             # 若出现hash值相同的文件
