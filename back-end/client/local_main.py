@@ -25,7 +25,7 @@ app.add_middleware(
 async def root():
     return {"message": "Hello World"}
 
-root_path = Path(__file__).resolve().parent.parent  # 项目根目录路径
+root_path = Path(__file__).resolve().parent.parent.parent  # 项目根目录路径
 app.include_router(IO.router)
 
 if __name__ == '__main__':

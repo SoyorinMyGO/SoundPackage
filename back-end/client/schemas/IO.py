@@ -20,5 +20,9 @@ class ImportFileResult(BaseModel):
     voice: Voice | None
     error: str | None = None
 
-class BatchImportResponse(BaseModel):
+class BatchImportFileResponse(BaseModel):
     reslut: list[ImportFileResult]
+
+class BatchImportPackageResponse(BaseModel):
+    package_name: str
+    result: list[Voice] | None

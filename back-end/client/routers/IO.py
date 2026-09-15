@@ -1,11 +1,8 @@
-from mailbox import FormatError
-from unittest import result
-
-from fastapi import APIRouter, Path, Depends, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query
 from starlette import status
 
 from client.cruds import IO
-from client.schemas.IO import ExportPackageRequest, BatchImportResponse, ImportFileRequest
+from client.schemas.IO import ExportPackageRequest, ImportFileRequest
 from client.utils.response import success_response
 
 router = APIRouter(prefix="/api/io", tags=['io'])
@@ -15,6 +12,17 @@ router = APIRouter(prefix="/api/io", tags=['io'])
 async def import_file_router(data: ImportFileRequest):
     result = await IO.import_files_crud(data.paths)
     return success_response(message='文件导入成功', data=result)
+
+# 导入语音包
+@router.post("/import/package")
+async def import_package_router(path: str = Query(..., description="被导入语音包的路径")):
+    try:
+        result = await IO.import_package_crud(path)
+        return success_response(message='导入语音包成功', data=result)
+    except FileNotFoundError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='文件不存在')
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='导入失败')
 
 # 导出语音包
 @router.post("/export")

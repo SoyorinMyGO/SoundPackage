@@ -1,11 +1,12 @@
 import json
 from datetime import datetime
+from os import mkdir
 from pathlib import Path
 import zipfile
 from pydub import AudioSegment
 
 from client.models.Voice import Voice
-from client.schemas.IO import ImportFileResult
+from client.schemas.IO import ImportFileResult, BatchImportPackageResponse
 from client.utils.hash import sha256_of_file
 
 
@@ -85,6 +86,38 @@ async def import_files_crud(paths: list[str]) -> list[ImportFileResult] | None:
         results.append(ImportFileResult(path=info["path"], status="success", voice=voice))
     return results
 
+# 导入语音包
+async def import_package_crud(path: str) -> BatchImportPackageResponse | None:
+    """导入语音包
+
+    Args:
+        path(str): 被导入语音包的压缩文件路径
+    """
+    file_path = Path(path)
+    if not file_path.exists():
+        raise FileNotFoundError
+    # 解压文件
+    from client.local_main import root_path
+    dust = root_path / 'assets/voices'
+    with zipfile.ZipFile(file_path, "r") as zf:
+        for file_info in zf.infolist():
+            if file_info.filename.endswith(".json"):
+                # 读取数据
+                with zf.open(file_info) as f:
+                    data_json = json.load(f)
+                continue
+
+            zf.extract(file_info, dust)
+    # 解析数据
+    data = data_json[0]
+    package_name = data['name']
+    voice_list = []
+    for item in data['voices']:
+        voice = Voice(remote_id=item['remote_id'], name=item['name'], hash_content=item['hash_content'], length=item['length'])
+        voice_list.append(voice)
+
+    return BatchImportPackageResponse(package_name=package_name, result=voice_list)
+
 # 导出语音包
 async def export_package_crud(package_name:str, position: str, voice_list: list[Voice]) -> None:
     """导出语音包
@@ -108,7 +141,7 @@ async def export_package_crud(package_name:str, position: str, voice_list: list[
 
         voice_data = []
         for item in voice_list:
-            voice_data.append({'id': item.id, 'name': item.name})
+            voice_data.append({"remote_id": item.remote_id, "name": item.name, "hash_content": item.hash_content, "length": item.length})
 
         package_id = 0
         package_data = [{
