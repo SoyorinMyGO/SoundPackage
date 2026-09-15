@@ -24,7 +24,7 @@
   </div>
   <!--右侧按钮组-->
   <div class="right-button-group">
-    <el-dropdown placement="bottom" trigger="click">
+    <el-dropdown class="import-dropdown" placement="bottom" trigger="click">
       <el-button>
         <i class="icon-import"></i>
       </el-button>
@@ -48,11 +48,12 @@
 <script setup lang="ts">
 import SearchInput from "../components/SearchInput.vue";
 import { computed, onMounted, onUnmounted, Ref, ref, UnwrapRef } from "vue";
-import { remoteApi, localApi } from "../config/axios_config"
+import { localApi } from "../config/axios_config"
 import { userThemeStore } from "../store/theme.js";
-import {getLocalStorage, setLocalStorage} from "../utils/LocalStorage/local_storage";
-import {ImportFileResponse, Voice} from "../model/Voice";
-import {PackageItem} from "../model/Package";
+import { getLocalStorage, setLocalStorage } from "../utils/LocalStorage/local_storage";
+import { Voice } from "../model/Voice";
+import { PackageItem } from "../model/Package";
+import { useLocalStorage } from "../utils/LocalStorage/use_storage";
 
 const props = defineProps({
   isCollapsed: Boolean,
@@ -157,7 +158,57 @@ const importVoiceFileHandle = async () => {
 
 // 导入压缩语音包
 const importPackageHandle = async () => {
+  const api = window.electronAPI;
+  if(!api || typeof api.selectCompressedFile !== 'function') {
+    console.warn('electronAPI.selectCompressedFile 不可用，当前环境非 Electron 或 preload 未加载');
+    return;
+  }
 
+  const filePath: string[] = await api.selectCompressedFile({
+    title: '选择要导入的语音包',
+  });
+  if (!filePath) {
+    console.log('用户取消了选择');
+    return;
+  }
+  const response = await localApi.post("/api/io/import/package", null, {params: {path: filePath[0]}});
+  const packageJson = response.data.data;
+  console.log(packageJson);
+  // 获取语音包数据
+  let package_id: number = getLocalStorage('next_package_id') || 1
+  const package_name: string = packageJson.package_name;
+  if (package_name !== "全部语音") {
+    const now: string = new Date().toString();
+    const Package: PackageItem = {
+      id: package_id,
+      name: package_name,
+      alias: null,
+      isTop: false,
+      voice_list: null,
+      created_at: now,
+      updated_at: now,
+    };
+    // 导入语音包数据
+    let packageInfo = useLocalStorage("package_info", []);
+    packageInfo.value.push(Package)
+    setLocalStorage("next_package_id", ++package_id);
+  }
+
+  // 导入语音数据
+  const voice_list: Voice[] = packageJson.result;
+  let voice_id: number = getLocalStorage("next_id") || 1;
+  const voiceInfo: Voice[] = getLocalStorage("voice_info") || [];
+  const voice_map = new Map(voiceInfo.map(v => [v.hash_content, v]))
+  for(const v of voice_list) {
+    if (!voice_map.has(v.hash_content)) {
+      v.id = voice_id;
+      voice_id++;
+      voiceInfo.push(v);
+    }
+  }
+  // 数据写回缓存
+  setLocalStorage("next_id", voice_id);
+  setLocalStorage("voice_info", voiceInfo);
 }
 
 // 导出语音压缩包
@@ -170,12 +221,12 @@ const exportPackageHandle = async () => {
 
   const filePath = await api.selectDirectory({
     title: '选择目标文件夹',
-  })
+  });
   if (filePath) {
     const packageId = props.packageChoose.id;
     const voiceInfo = getLocalStorage('voice_info') as Voice[];
     let packageName: string;
-    let voiceInfoList: Voice[] = [];
+    let voiceInfoList: Voice[];
     if (packageId === 0) {
       packageName = "全部语音"
       voiceInfoList = voiceInfo
@@ -283,7 +334,7 @@ button:active {
   margin: 10px;
 }
 
-.el-dropdown {
+.import-dropdown {
   border: none;
   border-radius: 15px;
   background: transparent;
@@ -295,6 +346,9 @@ button:active {
   height: 30px;
 }
 
+.import-dropdown :deep(.el-button) {
+  background-color: transparent !important;
+}
 
 .icon-import { font-size: 23px; }
 .icon-export { font-size: 22px; }
