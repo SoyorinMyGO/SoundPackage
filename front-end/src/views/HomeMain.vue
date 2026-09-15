@@ -26,6 +26,7 @@
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item class="custom-menu-item" @click="fieldHandle('used_times')">使用次数</el-dropdown-item>
+              <el-dropdown-item class="custom-menu-item" @click="fieldHandle('length')">时长</el-dropdown-item>
               <el-dropdown-item class="custom-menu-item" @click="fieldHandle('name')">名称</el-dropdown-item>
               <el-dropdown-item class="custom-menu-item" @click="fieldHandle('updated_at')">更新日期</el-dropdown-item>
             </el-dropdown-menu>
