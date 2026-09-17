@@ -53,15 +53,23 @@ const fullName = computed(() => {
   if (!alias.value) {
     return fileName.value;
   }
-  return `${filename.value}(${alias.value})`;
+  return `${fileName.value}(${alias.value})`;
 })
 
 // 获取文件路径
 const position = computed(() => {
-  if (!props.resource || !props.resource.name) { return '' }
+  if (!props.resource) { return '' }
+
+  fileName.value = props.resource.name || '';
+  if (!fileName.value) { return '' }
+
+  const ext = fileName.value.includes('.') ? `.${fileName.value.split('.').pop()}` : '';
+  const actualFileName = (props.resource.hash_content || fileName.value.replace(/\.[^/.]+$/, '')) + ext;
+
   try {
-    fileName.value = props.resource.name  // 文件本地路径
-    return new URL(`../../../assets/voices/${fileName.value}`, import.meta.url).href;
+    // 实际音频文件按 hash_content 存储，name 只是展示名称。
+    // 后端需要在 /assets/voices 下提供对应文件，否则浏览器仍然会报 No supported sources。
+    return `http://localhost:24990/assets/voices/${actualFileName}`;
   } catch (e) {
     console.error('音频路径生成失败', e);
     return '';
@@ -89,21 +97,36 @@ const onPause = () => {
 }
 
 // 播放/暂停事件
-const togglePlay = () => {
+const togglePlay = async () => {
   const audio = audioRef.value;
-  // 若媒体不存在则退出
-  if (!audio) return
+  // 若媒体不存在或没有可用来源则退出
+  if (!audio || !audio.currentSrc) {
+    console.warn('音频未准备好或无有效来源，无法播放');
+    return;
+  }
 
   if (audio.paused) {
-    audio.play()
+    console.log('DEBUG(audio): 播放');
+    // 将 loop 状态同步到元素
+    audio.loop = isLoop.value;
+    try {
+      await audio.play();
+    } catch (e) {
+      console.error('播放失败', e);
+    }
   } else {
-    audio.pause()
+    console.log('DEBUG(audio): 暂停');
+    audio.pause();
   }
 }
 
 // 循环事件
 const toggleLoop = () => {
   isLoop.value = !isLoop.value;
+  const audio = audioRef.value;
+  if (audio) {
+    audio.loop = isLoop.value;
+  }
 }
 </script>
 

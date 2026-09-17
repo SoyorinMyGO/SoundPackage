@@ -2,12 +2,15 @@ from pathlib import Path
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
 from client.routers import IO
 from client.utils.exception_handle import register_exception_handlers
 
 app = FastAPI()
+root_path = Path(__file__).resolve().parent.parent.parent  # 项目根目录路径
+app.mount("/assets", StaticFiles(directory=root_path / "assets"), name="assets")
 
 register_exception_handlers(app)
 
@@ -25,7 +28,6 @@ app.add_middleware(
 async def root():
     return {"message": "Hello World"}
 
-root_path = Path(__file__).resolve().parent.parent.parent  # 项目根目录路径
 app.include_router(IO.router)
 
 if __name__ == '__main__':

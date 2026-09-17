@@ -1,5 +1,8 @@
+from pathlib import Path
+
 import uvicorn
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
 from server.routers import voice, package, IO
@@ -7,6 +10,8 @@ from server.routers import test
 from server.utils.exception_handle import register_exception_handlers
 
 app = FastAPI()
+root_path = Path(__file__).resolve().parent.parent.parent
+app.mount("/assets", StaticFiles(directory=root_path / "assets"), name="assets")
 
 register_exception_handlers(app)
 
