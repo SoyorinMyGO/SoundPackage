@@ -24,11 +24,13 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref} from "vue";
+import {computed, PropType, ref} from "vue";
+import { updateUsedTimes } from "../utils/LocalStorage/update_used_times";
+import { Voice } from "../model/Voice";
 
 const props = defineProps({
   resource: {
-    type: Object,
+    type: Object as PropType<Voice>,
     required: true,
     default: null,
   }
@@ -78,11 +80,7 @@ const position = computed(() => {
 // 监听事件
 const onTimeUpdate = () => {}
 const onEnded = () => {
-  // 如果循环播放开启
-  if (isLoop.value) {
-    togglePlay();
-    return;
-  }
+  updateUsedTimes(props.resource);
   isPause.value = true;
   return;
 }
