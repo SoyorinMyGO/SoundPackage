@@ -137,7 +137,7 @@ const importVoiceFileHandle = async () => {
     console.log('DEBUG(import_file):results', results);
     let nextId = Number(getLocalStorage("next_id") || 1);
     console.log('DEBUG(import_file):nextId', nextId)
-    const store: Voice[] = getLocalStorage("voice_info") || [];
+    const store: Map<string, object> = getLocalStorage("voice_info") || new Map<string, object>();
 
     for (const r of results) {
       const v = r.voice;
@@ -145,7 +145,7 @@ const importVoiceFileHandle = async () => {
         continue;
       }
       v.id = nextId;
-      store.push(v);
+      store[v.hash_content] = v;
       nextId++;
     }
     // 将数据存入缓存
@@ -191,23 +191,23 @@ const importPackageHandle = async () => {
     // 导入语音包数据
     let packageInfo = useLocalStorage("package_info", []);
     packageInfo.value.push(Package)
-    setLocalStorage("next_package_id", ++package_id);
+    setLocalStorage("next_package_id", package_id++);
   }
 
   // 导入语音数据
   const voice_list: Voice[] = packageJson.result;
   let voice_id: number = getLocalStorage("next_id") || 1;
-  const voiceInfo: Voice[] = getLocalStorage("voice_info") || [];
-  const voice_map = new Map(voiceInfo.map(v => [v.hash_content, v]))
+  const voiceInfo: Map<string, object> = getLocalStorage("voice_info") || new Map<string, object>();
   for(const v of voice_list) {
-    if (!voice_map.has(v.hash_content)) {
+    // 如果本地不存在重复语音
+    if(!voiceInfo[v.hash_content]) {
+      // 存入当前语音
       v.id = voice_id;
-      voice_id++;
-      voiceInfo.push(v);
+      voiceInfo[v.hash_content] = v;
     }
   }
   // 数据写回缓存
-  setLocalStorage("next_id", voice_id);
+  setLocalStorage("next_id", voice_id++);
   setLocalStorage("voice_info", voiceInfo);
 }
 

@@ -56,21 +56,12 @@
 <script setup lang="ts">
 import {computed, ComputedRef, onMounted, ref, watch} from "vue";
 import ButtonCard from "../components/ButtonCard.vue";
-import { remoteApi } from "../config/axios_config.js";
+import {remoteApi} from "../config/axios_config.js";
 import RadioGroup from "../components/RadioGroup.vue";
 import RadioButton from "../components/RadioButton.vue";
-import { useLocalStorage } from "../utils/LocalStorage/use_storage";
-import { getVoiceListOptimized } from "../utils/PackageData/voice_filter"
-
-interface VoiceItem{
-  id: number;
-  name: string;
-  alias: string | null;
-  length: number;
-  used_times: number;
-  created_at: string;
-  updated_at: string;
-}
+import {useLocalStorage} from "../utils/LocalStorage/use_storage";
+import {getVoiceListOptimized} from "../utils/PackageData/voice_filter"
+import {Voice} from "../model/Voice";
 
 const props = defineProps({
   search: {
@@ -83,8 +74,8 @@ const props = defineProps({
   },
 })
 
-const responseData = ref<VoiceItem[]>([]);
-const voiceInfo = useLocalStorage<VoiceItem[] | null>("voice_info", null);
+const responseData = ref<Voice[]>([]);
+const voiceInfo = useLocalStorage<Record<string, Voice>>("voice_info", {});
 const field = ref<String>("used_times");
 const isDesc = ref<boolean>(true);
 // 默认按钮模式渲染
@@ -105,20 +96,26 @@ const getPackageId = () => {
 }
 
 // 获取语音列表
+const local_voice_list = computed<Voice[]>(() => Object.values(voiceInfo.value));
+
 const get_list = async() => {
   try {
-    const cachedVoice = voiceInfo.value;
-    if (Array.isArray(cachedVoice)) {
-      responseData.value = cachedVoice;
+    // 从本地获取数据
+    if (local_voice_list.value) {
+      // 若本地存在数据
+      responseData.value = local_voice_list.value;
       console.log('DEBUG(get_voice_list):从本地获取数据', responseData.value);
-      return;
+    } else {
+      // 从网络获取数据
+      const res = await remoteApi.get("/api/voice");
+      responseData.value = Array.isArray(res.data?.data) ? res.data.data : [];
+      console.log('DEBUG(get_voice_list):从网络获取数据', responseData.value);
+      // 将数据存入本地缓存
+      const new_voice_list = responseData.value;
+      voiceInfo.value = Object.fromEntries(
+          new_voice_list.map(v => [v.hash_content, v])
+      );
     }
-
-    console.log('DEBUG(get_voice_list):从网络获取数据');
-    const res = await remoteApi.get("/api/voice");
-    responseData.value = Array.isArray(res.data?.data) ? res.data.data : [];
-    voiceInfo.value = responseData.value;
-    console.log('DEBUG(get_voice_list):', responseData.value);
   }
   catch (e) {
     console.error(e);
@@ -137,7 +134,7 @@ watch(
 )
 
 // 解包
-const voiceDatas: ComputedRef<VoiceItem[]> = computed(() => {
+const voiceDatas: ComputedRef<Voice[]> = computed(() => {
   // 检查是否有数据
   if (!responseData.value || responseData.value.length === 0) {
     return [];
@@ -152,7 +149,7 @@ const voiceDatas: ComputedRef<VoiceItem[]> = computed(() => {
 })
 
 // 按字段过滤排序
-const sortedList = computed(() => {
+const sortedList = computed<Voice[]>(() => {
   let list = [...voiceDatas.value];
   // 搜索过滤
   const search: string = props.search;
@@ -166,7 +163,7 @@ const sortedList = computed(() => {
   }
   const derection = isDesc.value === true ? -1 : 1;
   return list.sort((a, b) => {
-    const key = field.value as keyof VoiceItem;
+    const key = field.value as keyof Voice;
     let valA: string | number = a[key];
     let valB: string | number = b[key];
     let result:number;

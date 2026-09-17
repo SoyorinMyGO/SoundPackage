@@ -68,7 +68,6 @@ const position = computed(() => {
 
   try {
     // 实际音频文件按 hash_content 存储，name 只是展示名称。
-    // 后端需要在 /assets/voices 下提供对应文件，否则浏览器仍然会报 No supported sources。
     return `http://localhost:24990/assets/voices/${actualFileName}`;
   } catch (e) {
     console.error('音频路径生成失败', e);
