@@ -38,9 +38,11 @@
     <button @click="exportPackageHandle" title="导出语音包">
       <i class="icon-export"></i>
     </button>
-    <button>
+    <button @click="showPopUpHandle">
       <i class="icon-file-manager"></i>
     </button>
+    <!--文件管理器弹窗-->
+    <PackageManagement v-model="show"/>
   </div>
 </div>
 </template>
@@ -54,6 +56,7 @@ import { getLocalStorage, setLocalStorage } from "../utils/LocalStorage/local_st
 import { Voice } from "../model/Voice";
 import { PackageItem } from "../model/Package";
 import { useLocalStorage } from "../utils/LocalStorage/use_storage";
+import PackageManagement from "../components/PackageManagement.vue";
 
 const props = defineProps({
   isCollapsed: Boolean,
@@ -80,6 +83,8 @@ const formData: Ref<UnwrapRef<string>, UnwrapRef<string> | string> = ref('');
 const search = computed(() => formData.value.trim());
 // 获取搜索栏的引用
 const searchInputRef = ref<typeof SearchInput | null>(null);
+// 展示弹窗
+const show = ref<boolean>(false);
 
 function handleInput(value: string) {
   formData.value = value;
@@ -111,6 +116,8 @@ const toggleTheme = () => {
   const nextTheme = currentTheme.value === 'dark' ? 'light' : 'dark';
   themeStore.setTheme(nextTheme);
 }
+// 展示弹窗
+const showPopUpHandle = () => { show.value = true; }
 
 // IO方法
 // 导入音频文件（可多选）

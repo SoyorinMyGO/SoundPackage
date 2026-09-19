@@ -20,15 +20,15 @@
           <i class="icon-up" v-if="!isDesc"></i>
         </button>
         <el-dropdown placement="bottom" trigger="click">
-            <el-button id="sort-menu" class="right-button-group">
+            <el-button class="right-button-group">
               <i class="icon-sort"></i>
             </el-button>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item class="custom-menu-item" @click="fieldHandle('used_times')">使用次数</el-dropdown-item>
-              <el-dropdown-item class="custom-menu-item" @click="fieldHandle('length')">时长</el-dropdown-item>
-              <el-dropdown-item class="custom-menu-item" @click="fieldHandle('name')">名称</el-dropdown-item>
-              <el-dropdown-item class="custom-menu-item" @click="fieldHandle('updated_at')">更新日期</el-dropdown-item>
+              <el-dropdown-item @click="fieldHandle('used_times')">使用次数</el-dropdown-item>
+              <el-dropdown-item @click="fieldHandle('length')">时长</el-dropdown-item>
+              <el-dropdown-item @click="fieldHandle('name')">名称</el-dropdown-item>
+              <el-dropdown-item @click="fieldHandle('updated_at')">更新日期</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
