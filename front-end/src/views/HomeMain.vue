@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 import {computed, ComputedRef, onMounted, ref, watch} from "vue";
-import ButtonCard from "../components/ButtonCard.vue";
+import ButtonCard from "../components/VoiceRender/ButtonCard.vue";
 import {remoteApi} from "../config/axios_config.js";
 import RadioGroup from "../components/RadioGroup.vue";
 import RadioButton from "../components/RadioButton.vue";

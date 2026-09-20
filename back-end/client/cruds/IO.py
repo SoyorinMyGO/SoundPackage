@@ -155,7 +155,9 @@ async def export_package_crud(package_name:str, position: str, voice_list: list[
         # 创建zip文件
         with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_STORED) as zip_file:
             for voice in voice_list:
-                suffix = '.' + voice.name.split('.')[1]
+                suffix = '.' + (voice.name.split('.')[-1] or '').lower()
+                if not suffix or suffix == '.':
+                    suffix = '.wav'
                 name = voice.hash_content + suffix
                 from client.local_main import root_path
                 voice_path = root_path / 'assets' / 'voices' / name
