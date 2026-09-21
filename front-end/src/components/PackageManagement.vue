@@ -12,7 +12,7 @@
             <i class="icon icon-add-to-dir"></i>
           </button>
           <SearchInput :is-simple=false v-model="formData.name" class="search"/>
-          <package-select :list="packageNameList"/>
+          <package-selector :list="packageNameList" @selected="selectHandle"/>
         </div>
         <!--语音列表操作-->
         <div class="mid-div">
@@ -38,8 +38,12 @@
         </button>
         </div>
         <!--语音内容-->
-        <div>
-        </div>
+        <el-scrollbar class="voice-list">
+          <DetailChoose :resource="item"
+                      v-for="item in voiceList"
+                      :key="item.id"
+          />
+        </el-scrollbar>
       </div>
     </div>
   </Transition>
@@ -48,10 +52,13 @@
 
 <script setup lang="ts">
 import SearchInput from "./SearchInput.vue";
-import {computed, ref} from "vue";
-import {getLocalStorage} from "../utils/LocalStorage/local_storage";
-import {PackageItem} from "../model/Package";
-import PackageSelect from "./PackageSelect.vue";
+import { computed, ref } from "vue";
+import { getLocalStorage } from "../utils/LocalStorage/local_storage";
+import { PackageItem } from "../model/Package";
+import PackageSelector, { PackageInfo } from "./PackageSelector.vue";
+import DetailChoose from "./VoiceRender/DetailChoose.vue";
+import { Voice } from "../model/Voice";
+import { getVoiceListOptimized } from "../utils/PackageData/voice_filter"
 
 const props = defineProps({
   modelValue: {
@@ -65,15 +72,34 @@ const emit = defineEmits<{
 
 const formData = ref({name: ''});
 const packageInfo = ref<PackageItem[] | null>(getLocalStorage<PackageItem[] | null>("package_info"));
-const currentPackage = ref<string>('全部语音');
+// 默认当前语音包为全部语音
+const currentPackage = ref<PackageInfo>({
+    id: 0,
+    name: '全部语音',
+});
 const isDesc = ref<boolean>(false);
 const field = ref<String>("used_times");
  
 const search = computed(() => formData.value.name.trim());
 const packageNameList = computed(() => {
-  let list: string[] = ['全部语音'];
-  return [...list, ...(packageInfo.value ?? []).map((item: PackageItem) => item.name)];
+  let list: PackageInfo[] = [{
+    id: 0,
+    name: '全部语音',
+  }];
+  return [...list, ...(packageInfo.value ?? []).map((item: PackageItem) => ({
+      name: item.name,
+      id: item.id,
+    }))];
 })
+// 语音列表
+const voiceInfo = getLocalStorage<Record<string, Voice> | null>("voice_info");
+const voiceList = getVoiceListOptimized(
+    voiceInfo,
+    [],
+    [],
+    currentPackage.value.id,
+    null,
+);
 
 // 点击事件
 // 关闭弹窗
@@ -89,6 +115,12 @@ const deleteFileHandle = () => {
 // 将语音添加至语音包
 const addToDirHandle = () => {
 
+}
+
+// 选择语音
+const selectHandle = (choosePackage: PackageInfo) => {
+  currentPackage.value = choosePackage;
+  console.log('DEBUG(PackageManagement):choosePackage:', currentPackage.value);
 }
 
 // 改变是否降序排列
@@ -133,6 +165,8 @@ i {
 }
 
 .main {
+  display: flex;
+  flex-direction: column;
   width: 70%;
   height: 70%;
   border-radius: 10px;
@@ -217,5 +251,12 @@ i {
 .mid-div i {
   font-size: 20px;
   color: var(--textColor);
+}
+
+.voice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 5px;
 }
 </style>

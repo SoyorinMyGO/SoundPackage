@@ -2,7 +2,7 @@
   <div class="selector" ref="rootRef">
     <!-- 触发器 -->
     <div class="trigger" :class="{'dropdown-open': isOpen}" @click="toggle">
-      <span>{{ selected }}</span>
+      <span>{{ selected.name }}</span>
     </div>
     <button class="add-button" :class="{'dropdown-open': isOpen}" @click="addDir">
       <span> + </span>
@@ -16,11 +16,11 @@
         <div class="scroll-area">
           <div
             v-for="item in props.list"
-            key="item"
+            key="item.id"
             class="option"
-            @click="select(item)"
+            @click="select(item.id, item.name)"
           >
-            {{ item }}
+            {{ item.name }}
           </div>
           <div v-if="!props.list.length" class="empty">无数据</div>
         </div>
@@ -32,18 +32,30 @@
 <script setup lang="ts">
 import {ref, onMounted, onBeforeUnmount, PropType} from 'vue';
 
+export interface PackageInfo {
+  id: number;
+  name: string;
+}
+
 const props = defineProps({
-  list: {type: Array as PropType<string[]>, default: () => []},
+  list: {type: Array as PropType<PackageInfo[]>, default: () => []},
 });
+const emits = defineEmits<{(e: 'selected', choosePackage: PackageInfo): PackageInfo}>();
 
 const isOpen = ref<boolean>(false);
 const rootRef = ref(null);
-const selected = ref<string>('全部语音');
+const selected = ref<PackageInfo>({
+  id: 0,
+  name: '全部语音',
+});
 
 const toggle = () => { isOpen.value = !isOpen.value; }
-const select = (item: string) => {
-  selected.value = item;
+const select = (id: number, name: string) => {
+  selected.value.id = id;
+  selected.value.name = name;
   isOpen.value = false;
+  // 传递数据到父组件
+  emits('selected', {id, name});
 };
 
 // 点击外部关闭
@@ -53,6 +65,7 @@ const handleClickOutside = (e) => {
   }
 };
 
+// 添加新语音包
 const addDir = () => {
 
 };

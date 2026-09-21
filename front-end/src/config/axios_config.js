@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+export const assetBaseUrl = import.meta.env.VITE_ASSET_BASE_URL || 'http://localhost:24999';
+
 export const remoteApi = axios.create({
     baseURL: 'http://localhost:24990',
     timeout: 10000,

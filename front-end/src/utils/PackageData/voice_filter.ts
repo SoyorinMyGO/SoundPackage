@@ -22,15 +22,23 @@ interface VoiceBelongTag {
  * @returns 筛选后的语音列表
  */
 export function getVoiceListOptimized(
-  voices: Voice[],
+  voices: Voice[] | Record<string, Voice> | null | undefined,
   voiceTags: VoiceBelongTag[],
   allTags: Tag[],
   packageId: number,
   selectedTagIds: number[] | null
 ): Voice[] {
+  const normalizedVoices = Array.isArray(voices)
+    ? voices
+    : Object.values((voices ?? {}) as Record<string, Voice>);
+
+  if (normalizedVoices.length === 0) {
+    return [];
+  }
+
   // 构建索引Map
   const voiceMap = new Map<number, Voice>();
-  voices.forEach(v => voiceMap.set(v.id, v));
+  normalizedVoices.forEach(v => voiceMap.set(v.id, v));
 
   // 构建标签Map
   const tagMap = new Map<number, Tag>();
@@ -57,7 +65,7 @@ export function getVoiceListOptimized(
 
   if (!selectedTagIds || selectedTagIds.length === 0) {
     return sortVoices(
-        voices.filter(v => filteredVoiceIds.has(v.id)),
+        normalizedVoices.filter(v => filteredVoiceIds.has(v.id)),
         'updated_at'
     );
   }

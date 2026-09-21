@@ -1,6 +1,6 @@
 <template>
 <div class="card">
-  <AudioComponent ref="audioComp" :position="position" :resource="props.resource"/>
+  <AudioComponent ref="audioComp" :resource="props.resource"/>
   <!--播放/暂停按钮-->
   <button @click="togglePlay" class="isPlay">
     <i v-if="isPauseComputed" class="icon-play"></i>
@@ -31,7 +31,6 @@ const props = defineProps({
 })
 
 const showedName = getShowedName(props.resource.name, props.resource.alias);
-const position = getPosition(props.resource);
 
 // 通过 ref 获取子组件暴露的方法和状态
 const audioComp = ref<any>(null);

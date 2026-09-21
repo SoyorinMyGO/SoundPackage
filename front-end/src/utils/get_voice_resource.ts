@@ -1,5 +1,6 @@
 import {computed} from "vue";
 import {Voice} from "../model/Voice";
+import { assetBaseUrl } from "../config/axios_config.js";
 
 export function getShowedName(fileName: string, alias: string): string {
     // 去后缀文件名
@@ -33,7 +34,7 @@ export function getPosition(resource: Voice): string {
     const actualFileName = `${hashContent}${ext}`;
     console.log('DEBUG(audio):actualFileName', actualFileName);
 
-    return encodeURI(`http://localhost:24990/assets/voices/${actualFileName}`);
+    return encodeURI(`${assetBaseUrl}/assets/voices/${actualFileName}`);
   } catch (e) {
     console.error('音频路径生成失败', e);
     return '';

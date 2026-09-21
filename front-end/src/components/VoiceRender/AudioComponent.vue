@@ -14,9 +14,9 @@
 import { updateUsedTimes } from "../../utils/LocalStorage/update_used_times";
 import {PropType, ref} from "vue";
 import {Voice} from "../../model/Voice";
+import {getPosition} from "../../utils/get_voice_resource";
 
 const props = defineProps({
-  position: String,
   resource: {
       type: Object as PropType<Voice>,
       required: true,
@@ -28,6 +28,7 @@ const props = defineProps({
 const audioRef = ref<HTMLAudioElement | null>(null);
 const isPause = ref<boolean>(true);
 const isLoop = ref<boolean>(false);
+const position = getPosition(props.resource);
 
 // 监听事件
 const onTimeUpdate = () => {}
@@ -47,7 +48,7 @@ const onPause = () => {
 }
 const onError = () => {
   isPause.value = true;
-  console.error('音频资源加载失败', { src: audioRef.value?.src, position: props.position });
+  console.error('音频资源加载失败', { src: audioRef.value?.src, position: position });
   return;
 }
 
