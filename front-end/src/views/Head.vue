@@ -181,26 +181,6 @@ const importPackageHandle = async () => {
   const response = await localApi.post("/api/io/import/package", null, {params: {path: filePath[0]}});
   const packageJson = response.data.data;
   console.log(packageJson);
-  // 获取语音包数据
-  let package_id: number = getLocalStorage('next_package_id') || 1
-  const package_name: string = packageJson.package_name;
-  if (package_name !== "全部语音") {
-    const now: string = new Date().toString();
-    const Package: PackageItem = {
-      id: package_id,
-      name: package_name,
-      alias: null,
-      isTop: false,
-      voice_list: null,
-      created_at: now,
-      updated_at: now,
-    };
-    // 导入语音包数据
-    let packageInfo = useLocalStorage("package_info", []);
-    packageInfo.value.push(Package)
-    setLocalStorage("next_package_id", package_id++);
-  }
-
   // 导入语音数据
   const voice_list: Voice[] = packageJson.result;
   let voice_id: number = getLocalStorage("next_id") || 1;
@@ -211,11 +191,32 @@ const importPackageHandle = async () => {
       // 存入当前语音
       v.id = voice_id;
       voiceInfo[v.hash_content] = v;
+      voice_id++;
     }
   }
   // 数据写回缓存
-  setLocalStorage("next_id", voice_id++);
+  setLocalStorage("next_id", voice_id);
   setLocalStorage("voice_info", voiceInfo);
+
+  // 获取语音包数据
+  let package_id: number = getLocalStorage('next_package_id') || 1
+  const package_name: string = packageJson.package_name;
+  if (package_name !== "全部语音") {
+    const now: string = new Date().toString();
+    const Package: PackageItem = {
+      id: package_id,
+      name: package_name,
+      alias: null,
+      isTop: false,
+      voice_list: voice_list.map(v => v.id),
+      created_at: now,
+      updated_at: now,
+    };
+    // 导入语音包数据
+    let packageInfo = useLocalStorage("package_info", []);
+    packageInfo.value.push(Package)
+    setLocalStorage("next_package_id", ++package_id);
+  }
 }
 
 // 导出语音压缩包
@@ -231,23 +232,28 @@ const exportPackageHandle = async () => {
   });
   if (filePath) {
     const packageId = props.packageChoose.id;
-    const voiceInfo = getLocalStorage('voice_info') as Voice[];
+    const voiceInfo = getLocalStorage('voice_info') as Record<number, Voice> | null;
+    if (!voiceInfo) {
+      // 若不存在语音则退出
+      return;
+    }
     let packageName: string;
     let voiceInfoList: Voice[];
+    const voiceList = Object.values(voiceInfo);
     if (packageId === 0) {
       packageName = "全部语音"
-      voiceInfoList = voiceInfo
+      voiceInfoList = Object.values(voiceInfo);
     } else {
       packageName = props.packageChoose.name;
       const packageInfo = getLocalStorage('package_info') as PackageItem[];
 
       // 获取语音信息
-      const targerPackage = packageInfo.find(item => item.id === packageId);
-      const voiceList = targerPackage?.voice_list ?? [];
+      const targetPackage = packageInfo.find(item => item.id === packageId);
+      const filterList = targetPackage?.voice_list ?? [];
       // 建立id -> voice索引
-      const voiceMap = new Map(voiceInfo.map(v => [v.id, v]))
+      const voiceMap = new Map(voiceList.map(v => [v.id, v]))
       // 获得语音信息列表
-      voiceInfoList = voiceList
+      voiceInfoList = filterList
           .map(v => voiceMap.get(v))
           .filter((v): v is Voice => v != undefined);
     }

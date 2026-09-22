@@ -6,6 +6,7 @@ class Voice(BaseModel):
     id: int | None = None
     remote_id: int | None = None
     name: str
+    alias: str | None = None
     length: int
     used_times: int = 0
     hash_content: str

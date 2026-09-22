@@ -61,6 +61,7 @@ async def import_files_crud(paths: list[str]) -> list[ImportFileResult] | None:
             id=None,
             remote_id=None,
             name=info["name"],
+            alias=None,
             length=info["length"],
             used_times=0,
             hash_content=h,
@@ -113,7 +114,7 @@ async def import_package_crud(path: str) -> BatchImportPackageResponse | None:
     package_name = data['name']
     voice_list = []
     for item in data['voices']:
-        voice = Voice(remote_id=item['remote_id'], name=item['name'], hash_content=item['hash_content'], length=item['length'])
+        voice = Voice(remote_id=item['remote_id'], name=item['name'], alias=item['alias'], hash_content=item['hash_content'], length=item['length'])
         voice_list.append(voice)
 
     return BatchImportPackageResponse(package_name=package_name, result=voice_list)
@@ -141,7 +142,7 @@ async def export_package_crud(package_name:str, position: str, voice_list: list[
 
         voice_data = []
         for item in voice_list:
-            voice_data.append({"remote_id": item.remote_id, "name": item.name, "hash_content": item.hash_content, "length": item.length})
+            voice_data.append({"remote_id": item.remote_id, "name": item.name, "alias": item.alias, "hash_content": item.hash_content, "length": item.length})
 
         package_id = 0
         package_data = [{
