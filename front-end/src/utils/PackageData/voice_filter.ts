@@ -19,6 +19,7 @@ interface VoiceBelongTag {
  * @param allTags - 所有标签数据
  * @param packageId - 选择的语音包id，0表示所有语音包
  * @param selectedTagIds - 选择的筛选标签id列表
+ * @param search - 搜索关键词
  * @returns 筛选后的语音列表
  */
 export function getVoiceListOptimized(
@@ -26,7 +27,8 @@ export function getVoiceListOptimized(
   voiceTags: VoiceBelongTag[],
   allTags: Tag[],
   packageId: number,
-  selectedTagIds: number[] | null
+  selectedTagIds: number[] | null,
+  search: string | null = null,
 ): Voice[] {
   const normalizedVoices = Array.isArray(voices)
     ? voices
@@ -36,9 +38,19 @@ export function getVoiceListOptimized(
     return [];
   }
 
+  let searchVoices: Voice[] = normalizedVoices;
+  // 根据搜索关键词进行筛选
+  if (search) {
+    console.log('DEBUG(VoiceList):筛选前的列表', normalizedVoices);
+    searchVoices = normalizedVoices.filter(v => {
+      return v.name.toLowerCase().includes(search.toLowerCase()) ||
+      v.alias?.toLowerCase().includes(search.toLowerCase());
+    });
+    console.log(`DEBUG(VoiceList):根据${search}筛选后的结果`, searchVoices);
+  }
   // 构建索引Map
   const voiceMap = new Map<number, Voice>();
-  normalizedVoices.forEach(v => voiceMap.set(v.id, v));
+  searchVoices.forEach(v => voiceMap.set(v.id, v));
 
   // 构建标签Map
   const tagMap = new Map<number, Tag>();
@@ -64,10 +76,7 @@ export function getVoiceListOptimized(
   console.log('DEBUG(get_voice_bt_package):', filteredVoiceIds);
 
   if (!selectedTagIds || selectedTagIds.length === 0) {
-    return sortVoices(
-        normalizedVoices.filter(v => filteredVoiceIds.has(v.id)),
-        'updated_at'
-    );
+    return searchVoices.filter(v => filteredVoiceIds.has(v.id))
   }
 
   // 获取选中标签及其所有子标签
@@ -107,7 +116,7 @@ export function getVoiceListOptimized(
     }
   }
 
-  return sortVoices(result, 'created_at');
+  return result;
 }
 
 
@@ -122,11 +131,25 @@ function getVoiceIdsByPackageId(packageId: number): Set<number> {
   return new Set(targetPackage.voice_list);
 }
 
-function sortVoices(voices: Voice[], dateField: 'updated_at' | 'created_at'): Voice[] {
-  return voices.sort((a, b) => {
-    if (b.used_times !== a.used_times) {
-      return b.used_times - a.used_times;
+export function sortVoices(voices: Voice[], dateField: 'used_times' | 'length' | 'name' | 'updated_at', isDesc: boolean = true): Voice[] {
+  const direction: 1 | -1 = isDesc ? -1 : 1;
+  // 不对入参数组进行原地排序，返回新数组以确保 Vue 能检测到变化
+  const sorted_voice = [...voices].sort((a, b) => {
+    const key = dateField as keyof Voice;
+    let valA: string | number = a[key] ?? "";
+    let valB: string | number = b[key] ?? "";
+    let result: number;
+    if (dateField === 'name') {
+      // 按名字进行排序
+      if (typeof valA !== 'string') valA = String(valA);
+      if (typeof valB !== 'string') valB = String(valB);
+      result = valA.localeCompare(valB, 'zh-Hans-CN', {sensitivity: 'base'});
+    } else {
+      // 数字或日期：a > b 返回 1，a < b 返回 -1
+      result = (valA > valB ? 1 : (valA < valB ? -1 : 0));
     }
-    return new Date(b[dateField]).getTime() - new Date(a[dateField]).getTime();
+    return direction * result;
   });
+  console.log('DEBUG(VoiceList):排序结果\n', sorted_voice);
+  return sorted_voice;
 }

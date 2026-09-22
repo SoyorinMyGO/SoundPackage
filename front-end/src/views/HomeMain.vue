@@ -60,7 +60,7 @@ import {remoteApi} from "../config/axios_config.js";
 import RadioGroup from "../components/RadioGroup.vue";
 import RadioButton from "../components/RadioButton.vue";
 import {useLocalStorage} from "../utils/LocalStorage/use_storage";
-import {getVoiceListOptimized} from "../utils/PackageData/voice_filter"
+import {getVoiceListOptimized, sortVoices} from "../utils/PackageData/voice_filter"
 import {Voice} from "../model/Voice";
 
 const props = defineProps({
@@ -76,7 +76,7 @@ const props = defineProps({
 
 const responseData = ref<Voice[]>([]);
 const voiceInfo = useLocalStorage<Record<string, Voice>>("voice_info", {});
-const field = ref<String>("used_times");
+const field = ref<'used_times' | 'length' | 'name' | 'updated_at'>("used_times");
 const isDesc = ref<boolean>(true);
 // 默认按钮模式渲染
 const renderMode = ref<string>("button");
@@ -139,45 +139,13 @@ const voiceDatas: ComputedRef<Voice[]> = computed(() => {
   if (!responseData.value || responseData.value.length === 0) {
     return [];
   }
-
-  // 筛选
   const packageId = getPackageId();
-  responseData.value = getVoiceListOptimized(responseData.value, [], [], packageId, null);
-  console.log('DEBUG(get_file_voice_list):', responseData.value);
-
-  return responseData.value;
+  return getVoiceListOptimized(responseData.value, [], [], packageId, null, props.search)
 })
 
-// 按字段过滤排序
+// 过滤排序
 const sortedList = computed<Voice[]>(() => {
-  let list = [...voiceDatas.value];
-  // 搜索过滤
-  const search: string = props.search;
-  if (search !== '') {
-    list = responseData.value.filter(item => {
-      const lowerKeyword = search.toLowerCase();
-      const nameMatch = item.name && item.name.toLowerCase().includes(lowerKeyword);
-      const aliasMatch = item.alias && item.alias.toLowerCase().includes(lowerKeyword);
-      return nameMatch || aliasMatch;
-    })
-  }
-  const derection = isDesc.value === true ? -1 : 1;
-  return list.sort((a, b) => {
-    const key = field.value as keyof Voice;
-    let valA: string | number = a[key];
-    let valB: string | number = b[key];
-    let result:number;
-    if (field.value === 'name') {
-      // 按名字进行排序
-      if (typeof valA !== 'string') valA = String(valA);
-      if (typeof valB !== 'string') valB = String(valB);
-      result = valA.localeCompare(valB, 'zh-Hans-CN', {sensitivity: 'base'});
-    } else {
-      // 数字或日期：a > b 返回 1，a < b 返回 -1
-      result = (valA > valB ? 1 : (valA < valB ? -1 : 0));
-    }
-    return derection * result;
-  })
+  return sortVoices(voiceDatas.value, field.value, isDesc.value);
 })
 
 // 事件处理
@@ -188,7 +156,7 @@ const descHandle = () => {
 }
 
 // 改变排序依据
-const fieldHandle = (val: string) => {
+const fieldHandle = (val: 'used_times' | 'length' | 'name' | 'updated_at') => {
   field.value = val;
   return;
 }
