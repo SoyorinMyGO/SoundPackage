@@ -70,7 +70,8 @@ const props = defineProps({
   }
 });
 const emit = defineEmits<{
-  (e: 'update:modelValue', val: boolean): void
+  (e: 'update:modelValue', val: boolean): void,
+  (e: 'refreshHomeMain'): void,
 }>();
 
 const formData: Ref<UnwrapRef<string>, UnwrapRef<string> | string> = ref('');
@@ -115,6 +116,8 @@ const sortedVoices = computed<Voice[]>(() => {
 // 关闭弹窗
 const close = () => {
   emit('update:modelValue', false);
+  // 刷新主页面
+  emit('refreshHomeMain');
 }
 
 // 删除语音

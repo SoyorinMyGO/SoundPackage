@@ -8,7 +8,7 @@
       <!-- 侧边栏 -->
       <Sidebar :isCollapsed="isCollapsed" @collapse-request="setCollapsed" @choose="setPackageChoose"/>
       <!-- 主视图 -->
-      <HomeMain ref="homeMainRef" :search="keyword" :packageChoose="packageChoose"/>
+      <HomeMain :key="homeMainRefreshVersion" ref="homeMainRef" :search="keyword" :packageChoose="packageChoose"/>
     </div>
   </div>
 </template>
@@ -25,6 +25,7 @@ const keyword = ref<string>('')
 const packageChoose = ref<PackageInfo>({id: 0, name: '全部语音'}) // 存储语音包对象，默认为id: name: 全部语音
 
 const homeMainRef = ref<any>(null)
+const homeMainRefreshVersion = ref(0)
 
 // 侧边栏折叠
 function toggleCollapsed(){
@@ -46,7 +47,10 @@ function setPackageChoose(val: PackageInfo){
 
 // 其它子组件请求刷新 HomeMain 的数据时调用
 function refreshHomeMain(){
+  // 先强制组件重建，再重新拉取数据
+  homeMainRefreshVersion.value += 1;
   if (homeMainRef.value && typeof homeMainRef.value.get_list === 'function') {
+    console.log('DEBUG(Home): 重新获取列表, refreshVersion=', homeMainRefreshVersion.value);
     homeMainRef.value.get_list();
   }
 }

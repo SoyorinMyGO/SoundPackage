@@ -12,7 +12,7 @@
     <i v-if="!isLoopComputed" class="icon-unloop"></i>
   </button>
   <!--语音名（去后缀）-->
-  <span>{{ showedName }}</span>
+  <span :title="showedName">{{ showedName }}</span>
 </div>
 </template>
 
@@ -20,7 +20,7 @@
 import { computed, PropType, ref } from "vue";
 import { Voice } from "../../model/Voice";
 import AudioComponent from "./AudioComponent.vue";
-import {getPosition, getShowedName} from "../../utils/get_voice_resource";
+import { getShowedName } from "../../utils/get_voice_resource";
 
 const props = defineProps({
   resource: {

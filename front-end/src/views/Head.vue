@@ -42,7 +42,7 @@
       <i class="icon-file-manager"></i>
     </button>
     <!--文件管理器弹窗-->
-    <PackageManagement v-model="show"/>
+    <PackageManagement v-model="show" @refreshHomeMain="packageManagementRefreshHandle"/>
   </div>
 </div>
 </template>
@@ -161,6 +161,9 @@ const importVoiceFileHandle = async () => {
   } else {
     console.log('DEBUG(selectFile): 用户取消了音频文件选择');
   }
+
+  // 通知父组件刷新页面数据
+  emit('refresh');
 }
 
 // 导入压缩语音包
@@ -276,6 +279,13 @@ const exportPackageHandle = async () => {
   } else {
     console.log('DEBUG(select_file): 用户取消了选择')
   }
+}
+
+// 退出语音包管理界面后刷新主界面
+const packageManagementRefreshHandle = () => {
+  // 通知父组件刷新页面数据
+  console.log('DEBUG(Head): 刷新主页面');
+  emit('refresh');
 }
 
 onMounted(() => {

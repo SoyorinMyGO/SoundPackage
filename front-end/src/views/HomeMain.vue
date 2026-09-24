@@ -60,6 +60,7 @@ import {remoteApi} from "../config/axios_config.js";
 import RadioGroup from "../components/RadioGroup.vue";
 import RadioButton from "../components/RadioButton.vue";
 import {useLocalStorage} from "../utils/LocalStorage/use_storage";
+import {getLocalStorage, setLocalStorage} from "../utils/LocalStorage/local_storage";
 import {getVoiceListOptimized, sortVoices} from "../utils/PackageData/voice_filter"
 import {Voice} from "../model/Voice";
 
@@ -100,21 +101,28 @@ const local_voice_list = computed<Voice[]>(() => Object.values(voiceInfo.value))
 
 async function get_list() {
   try {
+    const storedVoiceInfo = getLocalStorage<Record<string, Voice>>('voice_info');
+    const currentVoiceInfo = storedVoiceInfo ?? voiceInfo.value ?? {};
+
     // 从本地获取数据
-    if (local_voice_list.value) {
-      // 若本地存在数据
-      responseData.value = local_voice_list.value;
+    if (currentVoiceInfo && Object.keys(currentVoiceInfo).length > 0) {
+      // 若本地存在数据，强制替换引用，确保 Vue 能检测到更新
+      voiceInfo.value = { ...currentVoiceInfo };
+      responseData.value = Object.values(voiceInfo.value);
       console.log('DEBUG(get_voice_list):从本地获取数据', responseData.value);
     } else {
       // 从网络获取数据
       const res = await remoteApi.get("/api/voice");
       responseData.value = Array.isArray(res.data?.data) ? res.data.data : [];
       console.log('DEBUG(get_voice_list):从网络获取数据', responseData.value);
+
       // 将数据存入本地缓存
       const new_voice_list = responseData.value;
-      voiceInfo.value = Object.fromEntries(
+      const nextVoiceInfo = Object.fromEntries(
           new_voice_list.map(v => [v.hash_content, v])
       );
+      voiceInfo.value = { ...nextVoiceInfo };
+      setLocalStorage('voice_info', voiceInfo.value);
     }
   }
   catch (e) {
@@ -125,8 +133,8 @@ async function get_list() {
 watch(
   voiceInfo,
   (newVal) => {
-    if (Array.isArray(newVal)) {
-      responseData.value = newVal;
+    if (newVal && typeof newVal === 'object') {
+      responseData.value = Object.values(newVal);
       console.log('DEBUG(get_voice_list):缓存已更新', responseData.value);
     }
   },
