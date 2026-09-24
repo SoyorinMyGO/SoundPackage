@@ -9,14 +9,21 @@
     </button>
 
     <!-- 下拉面板 -->
-    <transition name="fade">
-      <div v-if="isOpen" class="dropdown">
+    <transition
+      @before-enter="beforeEnter"
+      @enter="enter"
+      @after-enter="afterEnter"
+      @before-leave="beforeLeave"
+      @leave="leave"
+      @after-leave="afterLeave"
+    >
+      <div v-if="isOpen" class="dropdown" ref="dropdownRef">
 
         <!-- 滚动区 -->
         <div class="scroll-area">
           <div
             v-for="item in props.list"
-            key="item.id"
+            :key="item.id"
             class="option"
             @click="select(item.id, item.name)"
           >
@@ -43,7 +50,8 @@ const props = defineProps({
 const emits = defineEmits<{(e: 'selected', choosePackage: PackageInfo): PackageInfo}>();
 
 const isOpen = ref<boolean>(false);
-const rootRef = ref(null);
+const rootRef = ref<HTMLElement | null>(null);
+const dropdownRef = ref<HTMLElement | null>(null);
 const selected = ref<PackageInfo>({
   id: 0,
   name: '全部语音',
@@ -59,8 +67,9 @@ const select = (id: number, name: string) => {
 };
 
 // 点击外部关闭
-const handleClickOutside = (e) => {
-  if (rootRef.value && !rootRef.value.contains(e.target)) {
+const handleClickOutside = (e: Event) => {
+  const root = rootRef.value as HTMLElement | null;
+  if (root && !root.contains(e.target as Node)) {
     isOpen.value = false
   }
 };
@@ -69,6 +78,60 @@ const handleClickOutside = (e) => {
 const addDir = () => {
 
 };
+
+function setHeight(el: HTMLElement, height: number | string) {
+  el.style.height = typeof height === 'number' ? `${height}px` : (height as string);
+}
+
+function getInnerContentHeight(el: HTMLElement) {
+  const content = el.querySelector('.scroll-area') as HTMLElement | null;
+  if (content) return content.scrollHeight;
+  return el.scrollHeight;
+}
+
+const beforeEnter = (el: HTMLElement) => {
+  el.style.overflow = 'hidden';
+  setHeight(el, 0);
+};
+const enter = (el: HTMLElement, done?: () => void) => {
+  const height = getInnerContentHeight(el);
+  void el.offsetHeight; // force reflow
+  el.style.transition = 'height 0.25s ease';
+  setHeight(el, height);
+  const onEnd = (e: Event) => {
+    if ((e as TransitionEvent).propertyName !== 'height') return;
+    el.removeEventListener('transitionend', onEnd);
+    if (done) done();
+  };
+  el.addEventListener('transitionend', onEnd);
+};
+const afterEnter = (el: HTMLElement) => {
+  el.style.height = '';
+  el.style.overflow = '';
+  el.style.transition = '';
+};
+
+const beforeLeave = (el: HTMLElement) => {
+  el.style.overflow = 'hidden';
+  setHeight(el, getInnerContentHeight(el));
+};
+const leave = (el: HTMLElement, done?: () => void) => {
+  void el.offsetHeight;
+  el.style.transition = 'height 0.25s ease';
+  setHeight(el, 0);
+  const onEnd = (e: Event) => {
+    if ((e as TransitionEvent).propertyName !== 'height') return;
+    el.removeEventListener('transitionend', onEnd);
+    if (done) done();
+  };
+  el.addEventListener('transitionend', onEnd);
+};
+const afterLeave = (el: HTMLElement) => {
+  el.style.height = '';
+  el.style.overflow = '';
+  el.style.transition = '';
+};
+
 onMounted(() => document.addEventListener('click', handleClickOutside));
 onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside));
 </script>
@@ -134,6 +197,9 @@ onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside))
 }
 .dropdown-open {
   border-bottom: 1px solid var(--secondaryColor);
+}
+.dropdown-close {
+  height: 0;
 }
 
 .scroll-area {
