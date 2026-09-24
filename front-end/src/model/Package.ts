@@ -7,3 +7,8 @@ export interface PackageItem {
   created_at: string
   updated_at: string
 }
+
+export interface PackageInfo {
+  id: number;
+  name: string;
+}

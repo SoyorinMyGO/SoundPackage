@@ -2,43 +2,53 @@
   <!-- 主容器 -->
   <div class="main-container">
     <!-- 顶部栏 -->
-    <Head :isCollapsed="isCollapsed" :packageChoose="packageChoose" @toggle="toggleCollapsed" @submit="setSearch"/>
+    <Head :isCollapsed="isCollapsed" :packageChoose="packageChoose" @toggle="toggleCollapsed" @submit="setSearch" @refresh="refreshHomeMain"/>
     <!--主内容-->
     <div class="content">
       <!-- 侧边栏 -->
       <Sidebar :isCollapsed="isCollapsed" @collapse-request="setCollapsed" @choose="setPackageChoose"/>
       <!-- 主视图 -->
-      <HomeMain :search="keyword" :packageChoose="packageChoose"/>
+      <HomeMain ref="homeMainRef" :search="keyword" :packageChoose="packageChoose"/>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Sidebar from "./Sidebar.vue";
 import Head from "./Head.vue";
 import {ref} from "vue";
 import HomeMain from "./HomeMain.vue";
+import {PackageInfo} from "../model/Package";
 
-const isCollapsed = ref(false)
-const keyword = ref('')
-const packageChoose = ref({id: 0, name: '全部语音'}) // 存储语音包对象，默认为id: name: 全部语音
+const isCollapsed = ref<boolean>(false)
+const keyword = ref<string>('')
+const packageChoose = ref<PackageInfo>({id: 0, name: '全部语音'}) // 存储语音包对象，默认为id: name: 全部语音
+
+const homeMainRef = ref<any>(null)
 
 // 侧边栏折叠
 function toggleCollapsed(){
   isCollapsed.value = !isCollapsed.value;
 }
-function setCollapsed(val){
+function setCollapsed(val: boolean){
   isCollapsed.value = val;
 }
 
 // 语音搜索
-function setSearch(val){
+function setSearch(val: string){
   keyword.value = val;
 }
 
-// 语义包选择
-function setPackageChoose(val){
+// 语音包选择
+function setPackageChoose(val: PackageInfo){
   packageChoose.value = val;
+}
+
+// 其它子组件请求刷新 HomeMain 的数据时调用
+function refreshHomeMain(){
+  if (homeMainRef.value && typeof homeMainRef.value.get_list === 'function') {
+    homeMainRef.value.get_list();
+  }
 }
 </script>
 

@@ -98,7 +98,7 @@ const getPackageId = () => {
 // 获取语音列表
 const local_voice_list = computed<Voice[]>(() => Object.values(voiceInfo.value));
 
-const get_list = async() => {
+async function get_list() {
   try {
     // 从本地获取数据
     if (local_voice_list.value) {
@@ -172,6 +172,8 @@ watch(
   },
   { deep: true }
 )
+
+defineExpose({ get_list });
 
 onMounted(() => {
   get_list();

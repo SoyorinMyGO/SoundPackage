@@ -63,7 +63,7 @@ const props = defineProps({
   packageChoose: Object,
 })
 
-const emit = defineEmits(["toggle", "submit"]);
+const emit = defineEmits(["toggle", "submit", "refresh"]);
 const themeStore = userThemeStore();
 
 declare global {
@@ -217,6 +217,9 @@ const importPackageHandle = async () => {
     packageInfo.value.push(Package)
     setLocalStorage("next_package_id", ++package_id);
   }
+
+  // 通知父组件刷新页面数据
+  emit('refresh');
 }
 
 // 导出语音压缩包
