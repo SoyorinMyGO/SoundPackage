@@ -1,7 +1,7 @@
 <template>
   <!--语音列表-->
   <AudioComponent ref="audioComp" :resource="props.resource"/>
-  <div class="voice-item">
+  <div class="voice-item" @click="() => chooseHandle()" :class="{'choosed': isChoose}">
     <!--语音操作按钮组-->
     <!--播放/暂停按钮-->
     <button @click="togglePlay">
@@ -37,6 +37,10 @@ const props = defineProps({
   }
 })
 
+const emits = defineEmits<{
+  (e: 'chooseVoice', voice: Voice, selected: boolean): void
+}>();
+
 // 通过 ref 获取子组件暴露的方法和状态
 const audioComp = ref<any>(null);
 // 获取语音的信息
@@ -54,6 +58,7 @@ const updatedAt = computed<string>(() => {
 const alias = ref<string>('');
 const rename = ref<boolean>();
 const voiceInfo = useLocalStorage<Record<string, Voice>>('voice_info', {});
+const isChoose = ref<boolean>(false);
 
 const renameHandle = (alias: string) => {
   // 开启重命名
@@ -83,6 +88,16 @@ const renameHandle = (alias: string) => {
   }
   rename.value = false;
 }
+
+const chooseHandle = (force?: boolean | MouseEvent) => {
+  const nextSelected = typeof force === 'boolean' ? force : !isChoose.value;
+  isChoose.value = nextSelected;
+  emits('chooseVoice', props.resource, nextSelected);
+}
+
+defineExpose({
+  chooseHandle,
+});
 
 // 使用子组件暴露的方法
 const togglePlay = () => {
@@ -131,6 +146,9 @@ input {
 }
 .voice-item:hover {
   border: 1px solid var(--primaryColor);
+}
+.choosed {
+  background-color: var(--secondaryColor);
 }
 
 .name-container {

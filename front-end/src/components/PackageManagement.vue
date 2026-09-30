@@ -36,15 +36,18 @@
             </el-dropdown-menu>
           </template>
         </el-dropdown>
-        <button id="choose-all-button" class="button-group">
+        <button id="choose-all-button" class="button-group" @click="chooseAllHandle">
           <i class="icon-choose-all"></i>
         </button>
         </div>
         <!--语音内容-->
         <el-scrollbar class="voice-list">
-          <DetailChoose :resource="item"
-                      v-for="item in sortedVoices"
-                      :key="item.id"
+          <DetailChoose
+              :resource="item"
+              v-for="item in sortedVoices"
+              :key="item.id"
+              :ref="(el: any) => setChildRef(item.id, el)"
+              @choose-voice="chooseVoiceHandle"
           />
         </el-scrollbar>
       </div>
@@ -83,7 +86,17 @@ const currentPackage = ref<PackageInfo>({
 });
 const isDesc = ref<boolean>(false);
 const field = ref<'used_times' | 'length' | 'name' | 'updated_at'>("used_times");
- 
+const choosedVoiceList = ref<Set<Voice>>(new Set);
+const childRefs = ref<Record<number, any>>({});
+
+const setChildRef = (id: number, el: any) => {
+  if (el) {
+    childRefs.value[id] = el;
+    return;
+  }
+  delete childRefs.value[id];
+};
+
 const search = computed(() => formData.value.trim());
 const packageNameList = computed(() => {
   let list: PackageInfo[] = [{
@@ -122,7 +135,7 @@ const close = () => {
 
 // 删除语音
 const deleteFileHandle = () => {
-  console.log('DEBUG(packageNameList):', packageNameList.value);
+
 }
 
 // 将语音添加至语音包
@@ -145,6 +158,26 @@ const descHandle = () => {
 const fieldHandle = (val: 'used_times' | 'length' | 'name' | 'updated_at') => {
   field.value = val;
   return;
+}
+
+// 选择语音
+const chooseVoiceHandle = (v: Voice, selected: boolean) => {
+  if (selected) {
+    choosedVoiceList.value.add(v);
+  } else {
+    choosedVoiceList.value.delete(v);
+  }
+  console.log('DEBUG(choosedVoice):', choosedVoiceList.value);
+}
+
+const chooseAllHandle = () => {
+  const allSelected = sortedVoices.value.every((voice) => choosedVoiceList.value.has(voice));
+  const targetSelected = !allSelected;
+
+  sortedVoices.value.forEach((voice) => {
+    const child = childRefs.value[voice.id];
+    child?.chooseHandle?.(targetSelected);
+  });
 }
 </script>
 
