@@ -17,6 +17,7 @@ interface VoiceBelongTag {
  * @param voices - 所有语音数据
  * @param voiceTags - 语音与标签的关联数据
  * @param allTags - 所有标签数据
+ * @param packageInfo - 所有语音包信息
  * @param packageId - 选择的语音包id，0表示所有语音包
  * @param selectedTagIds - 选择的筛选标签id列表
  * @param search - 搜索关键词
@@ -26,6 +27,7 @@ export function getVoiceListOptimized(
   voices: Voice[] | Record<string, Voice> | null | undefined,
   voiceTags: VoiceBelongTag[],
   allTags: Tag[],
+  packageInfo: PackageItem[],
   packageId: number,
   selectedTagIds: number[] | null,
   search: string | null = null,
@@ -71,7 +73,7 @@ export function getVoiceListOptimized(
   if (packageId === 0) {
     filteredVoiceIds = new Set(voiceMap.keys());
   } else {
-    filteredVoiceIds = getVoiceIdsByPackageId(packageId);
+    filteredVoiceIds = getVoiceIdsByPackageId(packageId, packageInfo);
   }
   console.log('DEBUG(get_voice_bt_package):', filteredVoiceIds);
 
@@ -120,9 +122,7 @@ export function getVoiceListOptimized(
 }
 
 
-function getVoiceIdsByPackageId(packageId: number): Set<number> {
-  // 获取语音包信息
-  const packageInfo = getLocalStorage('package_info') as PackageItem[];
+function getVoiceIdsByPackageId(packageId: number, packageInfo: PackageItem[]): Set<number> {
   // 根据语音包id筛选
   const targetPackage: PackageItem | undefined = packageInfo.find(item => item.id === packageId);
   if(!targetPackage) {

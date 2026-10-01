@@ -3,7 +3,7 @@ export interface PackageItem {
   name: string
   alias: string | null
   isTop: boolean
-  voice_list: number[] | null
+  voice_list: number[] | null | undefined
   created_at: string
   updated_at: string
 }

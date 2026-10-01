@@ -23,9 +23,9 @@
               <el-table-column property="alias" label="别名"/>
             </el-table>
             <div class="dialog-button-group">
-              <button class="warn-button" @click="deleteFileHandle">删除语音</button>
-              <button class="warn-button" @click="removeFromDirHandle">移出语音包</button>
-              <button class="cancel-button" @click="cancelHandle">取消</button>
+              <el-button class="warn-button" @click="removeFromDirHandle" :disabled="currentPackage.name === '全部语音'">移出语音包</el-button>
+              <el-button class="warn-button" @click="deleteFileHandle">删除语音</el-button>
+              <el-button class="cancel-button" @click="cancelHandle">取消</el-button>
             </div>
           </el-dialog>
           <el-dialog class="sy-dialog" v-model="dialogAddVisible" title="导入到">
@@ -76,12 +76,17 @@
 <script setup lang="ts">
 import SearchInput from "../components/SearchInput.vue";
 import {computed, Ref, ref, UnwrapRef} from "vue";
-import { getLocalStorage } from "../utils/LocalStorage/local_storage";
+import {getLocalStorage, setLocalStorage} from "../utils/LocalStorage/local_storage";
 import { PackageItem } from "../model/Package";
 import PackageSelector, { PackageInfo } from "../components/PackageSelector.vue";
 import DetailChoose from "../components/VoiceRender/DetailChoose.vue";
 import { Voice } from "../model/Voice";
 import {getVoiceListOptimized, sortVoices} from "../utils/PackageData/voice_filter"
+import {
+  rm_voices_from_all_dirs,
+  rm_voices_from_dir,
+  rm_voices_from_voice_list
+} from "../utils/PackageData/rm_voices_from_dir";
 
 const props = defineProps({
   modelValue: {
@@ -94,7 +99,8 @@ const emit = defineEmits<{
   (e: 'refreshHomeMain'): void,
 }>();
 
-interface VoiceNameInfo {
+interface VoiceBaseInfo {
+  id: number;
   name: string;
   alias: string | null | undefined;
 }
@@ -108,7 +114,7 @@ const currentPackage = ref<PackageInfo>({
 });
 const isDesc = ref<boolean>(false);
 const field = ref<'used_times' | 'length' | 'name' | 'updated_at'>("used_times");
-const choosedVoiceList = ref<VoiceNameInfo[]>([]);
+const choosedVoiceList = ref<VoiceBaseInfo[]>([]);
 const childRefs = ref<Record<number, any>>({});
 const dialogDeleteVisible = ref<boolean>(false);
 const dialogAddVisible = ref<boolean>(false);
@@ -139,12 +145,13 @@ const packageNameList = computed(() => {
     }))];
 })
 // 语音列表
-const voiceInfo = getLocalStorage<Record<string, Voice> | null>("voice_info");
+let voiceInfo = getLocalStorage<Record<string, Voice> | null>("voice_info");
 const voiceList = computed<Voice[]>(() => {
   return getVoiceListOptimized(
       voiceInfo,
       [],
       [],
+      packageInfo.value,
       currentPackage.value.id,
       null,
       search.value
@@ -165,16 +172,52 @@ const close = () => {
 
 // 删除语音
 const deleteFileHandle = () => {
+  const voiceIdsToDelete = choosedVoiceList.value.map((voice) => voice.id);
+  // 删除本地语音文件
 
+  // 从所有语音包中删除当前条目
+  const updatedPackageInfo = rm_voices_from_all_dirs(voiceIdsToDelete, packageInfo.value);
+  setLocalStorage("package_info", updatedPackageInfo);
+  // 从语音列表中删除
+  const updatedVoiceInfo = rm_voices_from_voice_list(voiceIdsToDelete, voiceInfo);
+  setLocalStorage("voice_info", updatedVoiceInfo);
+  // 更新会话存储
+  packageInfo.value = getLocalStorage("package_info");
+  voiceInfo = getLocalStorage<Record<string, Voice> | null>("voice_info");
+  // 清空语音选择
+  choosedVoiceList.value = [];
+  console.log('DEBUG(removeFromDir): 删除成功', updatedPackageInfo);
+  console.log('DEBUG(remoceFromVoiceList): 删除语音列表', updatedVoiceInfo);
+  // 关闭窗口
+  dialogDeleteVisible.value = false;
+  // 刷新主页面
+  emit('refreshHomeMain');
 }
 
 // 从语音包中移除语音
 const removeFromDirHandle = () => {
-
+  // 从当前语音包中删除当前条目
+  const updatedPackageInfo = rm_voices_from_dir(choosedVoiceList.value.map((voice) => voice.id), currentPackage.value.name, packageInfo.value);
+  setLocalStorage("package_info", updatedPackageInfo);
+  // 更新会话存储
+  packageInfo.value = getLocalStorage("package_info");
+  voiceInfo = getLocalStorage<Record<string, Voice> | null>("voice_info");
+  // 清空语音选择
+  choosedVoiceList.value = [];
+  console.log('DEBUG(removeFromDir): 删除成功', updatedPackageInfo);
+  // 关闭窗口
+  dialogDeleteVisible.value = false;
+  // 刷新主页面
+  emit('refreshHomeMain');
 }
 
 // 将语音添加至语音包
 const addToDirHandle = () => {
+
+}
+
+// 新建语音包
+const addNewDirHandle = () => {
 
 }
 
@@ -197,7 +240,7 @@ const fieldHandle = (val: 'used_times' | 'length' | 'name' | 'updated_at') => {
 
 // 选择语音
 const chooseVoiceHandle = (v: Voice, selected: boolean) => {
-  const voiceInfo = { name: v.name, alias: v.alias };
+  const voiceInfo = { id: v.id, name: v.name, alias: v.alias };
 
   if (selected) {
     if (!isVoiceSelected(voiceInfo)) {
@@ -220,7 +263,7 @@ const chooseAllHandle = () => {
     child?.chooseHandle?.(targetSelected);
 
     if (targetSelected && !isVoiceSelected(voice)) {
-      choosedVoiceList.value.push({ name: voice.name, alias: voice.alias });
+      choosedVoiceList.value.push({ id: voice.id, name: voice.name, alias: voice.alias });
     }
 
     if (!targetSelected) {
@@ -407,7 +450,6 @@ i {
   align-items: center;
   justify-content: flex-end;
   margin-top: 8px;
-  gap: 10px;
 }
 .sy-dialog button {
   width: 80px;

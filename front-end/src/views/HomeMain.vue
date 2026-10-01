@@ -63,6 +63,7 @@ import {useLocalStorage} from "../utils/LocalStorage/use_storage";
 import {getLocalStorage, setLocalStorage} from "../utils/LocalStorage/local_storage";
 import {getVoiceListOptimized, sortVoices} from "../utils/PackageData/voice_filter"
 import {Voice} from "../model/Voice";
+import {PackageItem} from "../model/Package";
 
 const props = defineProps({
   search: {
@@ -148,7 +149,8 @@ const voiceDatas: ComputedRef<Voice[]> = computed(() => {
     return [];
   }
   const packageId = getPackageId();
-  return getVoiceListOptimized(responseData.value, [], [], packageId, null, props.search)
+  const packageInfo: PackageItem[] = getLocalStorage('package_info');
+  return getVoiceListOptimized(responseData.value, [], [], packageInfo, packageId, null, props.search)
 })
 
 // 过滤排序
