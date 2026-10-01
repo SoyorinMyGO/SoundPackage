@@ -56,7 +56,7 @@ import { getLocalStorage, setLocalStorage } from "../utils/LocalStorage/local_st
 import { Voice } from "../model/Voice";
 import { PackageItem } from "../model/Package";
 import { useLocalStorage } from "../utils/LocalStorage/use_storage";
-import PackageManagement from "../components/PackageManagement.vue";
+import PackageManagement from "./PackageManagement.vue";
 
 const props = defineProps({
   isCollapsed: Boolean,

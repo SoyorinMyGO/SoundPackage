@@ -5,16 +5,33 @@
       <div class="main">
         <!--顶部操作栏-->
         <div class="top">
-          <button @click="deleteFileHandle">
+          <!--语音操作按钮-->
+          <el-button @click="visibleHandle('delete')">
             <i class="icon icon-delete" id="deleteFile"></i>
-          </button>
-          <button @click="addToDirHandle">
+          </el-button>
+          <el-button @click="visibleHandle('add')">
             <i class="icon icon-add-to-dir"></i>
-          </button>
+          </el-button>
           <Search-input :is-simple=false
                        v-model="formData"
                        class="search"
           ></search-input>
+          <!--操作确认弹出框-->
+          <el-dialog class="sy-dialog" v-model="dialogDeleteVisible" title="确认删除">
+            <el-table :data="choosedVoiceList" class="choosed-voice-table" max-height="300px">
+              <el-table-column property="name" label="名字"/>
+              <el-table-column property="alias" label="别名"/>
+            </el-table>
+            <div class="dialog-button-group">
+              <button class="warn-button" @click="deleteFileHandle">删除语音</button>
+              <button class="warn-button" @click="removeFromDirHandle">移出语音包</button>
+              <button class="cancel-button" @click="cancelHandle">取消</button>
+            </div>
+          </el-dialog>
+          <el-dialog class="sy-dialog" v-model="dialogAddVisible" title="导入到">
+
+          </el-dialog>
+          <!--语音包选择框-->
           <package-selector :list="packageNameList" @selected="selectHandle"/>
         </div>
         <!--语音列表操作-->
@@ -57,12 +74,12 @@
 </template>
 
 <script setup lang="ts">
-import SearchInput from "./SearchInput.vue";
+import SearchInput from "../components/SearchInput.vue";
 import {computed, Ref, ref, UnwrapRef} from "vue";
 import { getLocalStorage } from "../utils/LocalStorage/local_storage";
 import { PackageItem } from "../model/Package";
-import PackageSelector, { PackageInfo } from "./PackageSelector.vue";
-import DetailChoose from "./VoiceRender/DetailChoose.vue";
+import PackageSelector, { PackageInfo } from "../components/PackageSelector.vue";
+import DetailChoose from "../components/VoiceRender/DetailChoose.vue";
 import { Voice } from "../model/Voice";
 import {getVoiceListOptimized, sortVoices} from "../utils/PackageData/voice_filter"
 
@@ -77,6 +94,11 @@ const emit = defineEmits<{
   (e: 'refreshHomeMain'): void,
 }>();
 
+interface VoiceNameInfo {
+  name: string;
+  alias: string | null | undefined;
+}
+
 const formData: Ref<UnwrapRef<string>, UnwrapRef<string> | string> = ref('');
 const packageInfo = ref<PackageItem[] | null>(getLocalStorage<PackageItem[] | null>("package_info"));
 // 默认当前语音包为全部语音
@@ -86,8 +108,16 @@ const currentPackage = ref<PackageInfo>({
 });
 const isDesc = ref<boolean>(false);
 const field = ref<'used_times' | 'length' | 'name' | 'updated_at'>("used_times");
-const choosedVoiceList = ref<Set<Voice>>(new Set);
+const choosedVoiceList = ref<VoiceNameInfo[]>([]);
 const childRefs = ref<Record<number, any>>({});
+const dialogDeleteVisible = ref<boolean>(false);
+const dialogAddVisible = ref<boolean>(false);
+
+const isVoiceSelected = (voice: Pick<Voice, 'name' | 'alias'>) => {
+  return choosedVoiceList.value.some(
+    (item) => item.name === voice.name && item.alias === voice.alias
+  );
+};
 
 const setChildRef = (id: number, el: any) => {
   if (el) {
@@ -138,6 +168,11 @@ const deleteFileHandle = () => {
 
 }
 
+// 从语音包中移除语音
+const removeFromDirHandle = () => {
+
+}
+
 // 将语音添加至语音包
 const addToDirHandle = () => {
 
@@ -162,22 +197,50 @@ const fieldHandle = (val: 'used_times' | 'length' | 'name' | 'updated_at') => {
 
 // 选择语音
 const chooseVoiceHandle = (v: Voice, selected: boolean) => {
+  const voiceInfo = { name: v.name, alias: v.alias };
+
   if (selected) {
-    choosedVoiceList.value.add(v);
+    if (!isVoiceSelected(voiceInfo)) {
+      choosedVoiceList.value.push(voiceInfo);
+    }
   } else {
-    choosedVoiceList.value.delete(v);
+    choosedVoiceList.value = choosedVoiceList.value.filter(
+      (item) => item.name !== voiceInfo.name || item.alias !== voiceInfo.alias
+    );
   }
   console.log('DEBUG(choosedVoice):', choosedVoiceList.value);
 }
 
 const chooseAllHandle = () => {
-  const allSelected = sortedVoices.value.every((voice) => choosedVoiceList.value.has(voice));
+  const allSelected = sortedVoices.value.every((voice) => isVoiceSelected(voice));
   const targetSelected = !allSelected;
 
   sortedVoices.value.forEach((voice) => {
     const child = childRefs.value[voice.id];
     child?.chooseHandle?.(targetSelected);
+
+    if (targetSelected && !isVoiceSelected(voice)) {
+      choosedVoiceList.value.push({ name: voice.name, alias: voice.alias });
+    }
+
+    if (!targetSelected) {
+      choosedVoiceList.value = choosedVoiceList.value.filter(
+        (item) => item.name !== voice.name || item.alias !== voice.alias
+      );
+    }
   });
+}
+
+// 操控弹窗显示
+const visibleHandle = (type: string) => {
+  if (choosedVoiceList.value.length > 0) {
+    if (type === "add") dialogAddVisible.value = true;
+    if (type === "delete") dialogDeleteVisible.value = true;
+  }
+}
+const cancelHandle = () => {
+  dialogDeleteVisible.value = false;
+  dialogAddVisible.value = false;
 }
 </script>
 
@@ -236,6 +299,9 @@ i {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.top>button:active {
+  transform: scale(0.9);
 }
 .top i {
   width: 25px;
@@ -304,4 +370,81 @@ i {
   gap: 3px;
   padding: 5px;
 }
+
+:deep(.sy-dialog) {
+  color: var(--textColor);
+  background: var(--background);
+}
+:deep(.sy-dialog .el-dialog__title) {
+  color: var(--textColor);
+}
+
+.choosed-voice-table {
+  --el-table-bg-color: transparent;
+  --el-table-tr-bg-color: transparent;
+  --el-table-header-bg-color: transparent;
+  --el-table-row-hover-bg-color: rgba(255, 255, 255, 0.1);
+  --el-table-text-color: #ffffff;
+  --el-table-header-text-color: #ffffff;
+  --el-table-border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 确保内部元素也透明 */
+.choosed-voice-table :deep(.el-table__inner-wrapper),
+.choosed-voice-table :deep(.el-table__header-wrapper),
+.choosed-voice-table :deep(.el-table__body-wrapper) {
+  background-color: transparent;
+}
+
+.choosed-voice-table :deep(.el-table__header th),
+.choosed-voice-table :deep(.el-table__body td) {
+  background-color: transparent !important;
+  color: var(--textColor) !important;
+}
+
+.dialog-button-group{
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 8px;
+  gap: 10px;
+}
+.sy-dialog button {
+  width: 80px;
+  height: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+}
+.sy-dialog button:active {
+  transform: scale(0.95);
+}
+.sy-dialog button::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, var(--hover) 20%, transparent 70%);
+  opacity: 0.2;
+  transition: opacity 0.5s;
+}
+.sy-dialog button:hover::after {
+  opacity: 1;
+}
+.warn-button {
+  background-color: transparent;
+  color: red;
+  border: 1px solid red;
+}
+.cancel-button {
+  background-color: transparent;
+  color: var(--textColor);
+  border: 1px solid var(--primaryColor);
+}
+
 </style>
