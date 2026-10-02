@@ -87,6 +87,7 @@ import {
   rm_voices_from_dir,
   rm_voices_from_voice_list
 } from "../utils/PackageData/rm_voices_from_dir";
+import {localApi} from "../config/axios_config";
 
 const props = defineProps({
   modelValue: {
@@ -103,6 +104,7 @@ interface VoiceBaseInfo {
   id: number;
   name: string;
   alias: string | null | undefined;
+  hash_content: string;
 }
 
 const formData: Ref<UnwrapRef<string>, UnwrapRef<string> | string> = ref('');
@@ -171,27 +173,45 @@ const close = () => {
 }
 
 // 删除语音
-const deleteFileHandle = () => {
-  const voiceIdsToDelete = choosedVoiceList.value.map((voice) => voice.id);
-  // 删除本地语音文件
-
-  // 从所有语音包中删除当前条目
-  const updatedPackageInfo = rm_voices_from_all_dirs(voiceIdsToDelete, packageInfo.value);
-  setLocalStorage("package_info", updatedPackageInfo);
-  // 从语音列表中删除
-  const updatedVoiceInfo = rm_voices_from_voice_list(voiceIdsToDelete, voiceInfo);
-  setLocalStorage("voice_info", updatedVoiceInfo);
-  // 更新会话存储
-  packageInfo.value = getLocalStorage("package_info");
-  voiceInfo = getLocalStorage<Record<string, Voice> | null>("voice_info");
-  // 清空语音选择
-  choosedVoiceList.value = [];
-  console.log('DEBUG(removeFromDir): 删除成功', updatedPackageInfo);
-  console.log('DEBUG(remoceFromVoiceList): 删除语音列表', updatedVoiceInfo);
-  // 关闭窗口
-  dialogDeleteVisible.value = false;
-  // 刷新主页面
-  emit('refreshHomeMain');
+const deleteFileHandle = async() => {
+  try {
+    const voiceIdsToDelete = choosedVoiceList.value.map((voice) => voice.id);
+    // 删除本地语音文件
+    const voice_paths = choosedVoiceList.value.map((voice) => `${voice.hash_content}.${voice.name.split(".").pop()}`);
+    console.log('DEBUG(deleteFileHandle): 删除语音文件路径', voice_paths);
+    await localApi.delete("/api/io", {
+          params: { paths: voice_paths },
+          paramsSerializer: {
+            indexes: null
+          }
+        })
+        .then((response) => {
+          console.log('DEBUG(deleteFileHandle): 删除语音文件成功', response.data);
+        })
+        .catch((error) => {
+          throw new Error(`删除语音文件失败: ${error.response?.data?.detail ?? error.message}`);
+        });
+    // 从所有语音包中删除当前条目
+    const updatedPackageInfo = rm_voices_from_all_dirs(voiceIdsToDelete, packageInfo.value);
+    setLocalStorage("package_info", updatedPackageInfo);
+    // 从语音列表中删除
+    const updatedVoiceInfo = rm_voices_from_voice_list(voiceIdsToDelete, voiceInfo);
+    setLocalStorage("voice_info", updatedVoiceInfo);
+    // 更新会话存储
+    packageInfo.value = getLocalStorage("package_info");
+    voiceInfo = getLocalStorage<Record<string, Voice> | null>("voice_info");
+    // 清空语音选择
+    choosedVoiceList.value = [];
+    console.log('DEBUG(removeFromDir): 删除成功', updatedPackageInfo);
+    console.log('DEBUG(remoceFromVoiceList): 删除语音列表', updatedVoiceInfo);
+    // 刷新主页面
+    emit('refreshHomeMain');
+  } catch (e) {
+    console.error('删除失败:', e);
+  } finally {
+    // 关闭窗口
+    dialogDeleteVisible.value = false;
+  }
 }
 
 // 从语音包中移除语音
@@ -240,7 +260,7 @@ const fieldHandle = (val: 'used_times' | 'length' | 'name' | 'updated_at') => {
 
 // 选择语音
 const chooseVoiceHandle = (v: Voice, selected: boolean) => {
-  const voiceInfo = { id: v.id, name: v.name, alias: v.alias };
+  const voiceInfo = { id: v.id, name: v.name, alias: v.alias, hash_content: v.hash_content};
 
   if (selected) {
     if (!isVoiceSelected(voiceInfo)) {
@@ -248,7 +268,7 @@ const chooseVoiceHandle = (v: Voice, selected: boolean) => {
     }
   } else {
     choosedVoiceList.value = choosedVoiceList.value.filter(
-      (item) => item.name !== voiceInfo.name || item.alias !== voiceInfo.alias
+        (item) => item.name !== voiceInfo.name || item.alias !== voiceInfo.alias || item.hash_content !== voiceInfo.hash_content
     );
   }
   console.log('DEBUG(choosedVoice):', choosedVoiceList.value);
@@ -263,12 +283,12 @@ const chooseAllHandle = () => {
     child?.chooseHandle?.(targetSelected);
 
     if (targetSelected && !isVoiceSelected(voice)) {
-      choosedVoiceList.value.push({ id: voice.id, name: voice.name, alias: voice.alias });
+      choosedVoiceList.value.push({ id: voice.id, name: voice.name, alias: voice.alias, hash_content: voice.hash_content });
     }
 
     if (!targetSelected) {
       choosedVoiceList.value = choosedVoiceList.value.filter(
-        (item) => item.name !== voice.name || item.alias !== voice.alias
+        (item) => item.name !== voice.name || item.alias !== voice.alias || item.hash_content !== voice.hash_content
       );
     }
   });

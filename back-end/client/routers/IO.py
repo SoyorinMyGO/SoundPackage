@@ -38,3 +38,12 @@ async def export_package_router(data: ExportPackageRequest):
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail='压缩包已存在')
     except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='导出失败')
+
+# 删除语音文件
+@router.delete("")
+async def delete_file_router(paths: list[str] = Query(..., description="被删除语音文件的路径")):
+    try:
+        await IO.delete_file_crud(paths)
+        return success_response(message='语音文件删除成功', data=None)
+    except FileNotFoundError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='文件不存在')

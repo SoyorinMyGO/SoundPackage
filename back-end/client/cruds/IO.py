@@ -169,3 +169,19 @@ async def export_package_crud(package_name:str, position: str, voice_list: list[
 
     # 若导出路径不存在或不是文件夹
     raise NotADirectoryError
+
+# 删除语音文件
+async def delete_file_crud(paths: list[str]) -> None:
+    """删除语音文件
+
+    Args:
+        paths(list[str]): 被删除语音文件的路径
+    """
+    from client.local_main import root_path
+    for p in paths:
+        file = Path(root_path / 'assets' / 'voices' / p)
+        if not file.exists():
+            raise FileNotFoundError
+        if not file.is_file():
+            raise FileNotFoundError
+        file.unlink()
