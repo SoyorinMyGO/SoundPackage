@@ -4,9 +4,22 @@
     <div class="trigger" :class="{'dropdown-open': isOpen}" @click="toggle">
       <span>{{ selected.name }}</span>
     </div>
-    <button class="add-button" :class="{'dropdown-open': isOpen}" @click="addDir">
+    <!--添加语音包按钮-->
+    <button class="add-button" :class="{'dropdown-open': isOpen}" @click="openAddPkgDialog">
       <span> + </span>
     </button>
+    <el-dialog
+      title="添加语音包"
+      class="sy-dialog"
+      v-model="dialogVisible"
+      align-center
+    >
+      <input v-model="packageName" placeholder="请输入新语音包名称"/>
+      <div class="add-pkg-button-group">
+        <button @click="addPkgHandle" class="settle-button">确 定</button>
+        <button @click="cancelHandle" class="cancel-button">取 消</button>
+      </div>
+    </el-dialog>
 
     <!-- 下拉面板 -->
     <transition
@@ -38,6 +51,8 @@
 
 <script setup lang="ts">
 import {ref, onMounted, onBeforeUnmount, PropType} from 'vue';
+import {add_new_package} from "../utils/PackageData/add_new_package";
+import {PackageItem} from "../model/Package";
 
 export interface PackageInfo {
   id: number;
@@ -47,7 +62,10 @@ export interface PackageInfo {
 const props = defineProps({
   list: {type: Array as PropType<PackageInfo[]>, default: () => []},
 });
-const emits = defineEmits<{(e: 'selected', choosePackage: PackageInfo): PackageInfo}>();
+const emits = defineEmits<{
+  (e: 'selected', choosePackage: PackageInfo): PackageInfo,
+  (e: 'refresh-sidebar'): void,
+}>();
 
 const isOpen = ref<boolean>(false);
 const rootRef = ref<HTMLElement | null>(null);
@@ -56,6 +74,8 @@ const selected = ref<PackageInfo>({
   id: 0,
   name: '全部语音',
 });
+const dialogVisible = ref(false);
+const packageName = ref('');
 
 const toggle = () => { isOpen.value = !isOpen.value; }
 const select = (id: number, name: string) => {
@@ -75,9 +95,26 @@ const handleClickOutside = (e: Event) => {
 };
 
 // 添加新语音包
-const addDir = () => {
-
+const openAddPkgDialog = () => {
+  dialogVisible.value = true;
 };
+const addPkgHandle = () => {
+  if (packageName.value.trim() === '') {
+    alert('语音包名称不能为空');
+    return;
+  }
+
+  add_new_package(packageName.value.trim());
+
+  dialogVisible.value = false;
+  packageName.value = '';
+
+  emits('refresh-sidebar');
+}
+const cancelHandle = () => {
+  dialogVisible.value = false;
+  packageName.value = '';
+}
 
 function setHeight(el: HTMLElement, height: number | string) {
   el.style.height = typeof height === 'number' ? `${height}px` : (height as string);
@@ -173,6 +210,62 @@ onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside))
 }
 .add-button:active {
   transform: scale(0.95);
+}
+:deep(.sy-dialog) {
+  color: var(--textColor);
+  background: var(--background);
+}
+:deep(.sy-dialog .el-dialog__title) {
+  color: var(--textColor);
+}
+.sy-dialog input {
+  background-color: transparent;
+  border: 1px solid var(--secondaryColor);
+  border-radius: 4px;
+  height: 40px;
+  width: 100%;
+  padding: 10px;
+  overflow: hidden;
+  color: var(--textColor);
+}
+.add-pkg-button-group {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+  gap: 10px;
+}
+.add-pkg-button-group>button {
+  width: 80px;
+  height: 30px;
+  border-radius: 4px;
+  background-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+.settle-button {
+  border: 1px solid var(--primaryColor);
+  color: var(--primaryColor);
+}
+.cancel-button {
+  border: 1px solid var(--secondaryColor);
+  color: var(--secondaryColor);
+}
+.sy-dialog button:active {
+  transform: scale(0.95);
+}
+.sy-dialog button::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, var(--hover) 20%, transparent 70%);
+  opacity: 0.2;
+  transition: opacity 0.5s;
+}
+.sy-dialog button:hover::after {
+  opacity: 1;
 }
 
 .arrow {

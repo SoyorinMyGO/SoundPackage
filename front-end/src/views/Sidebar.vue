@@ -62,7 +62,7 @@ const props = defineProps({
 
 const emit = defineEmits(["collapse-request", "choose"])
 
-const packageInfo = useLocalStorage<PackageItem[] | null>("packageInfo", null);
+const packageInfo = useLocalStorage<PackageItem[] | null>("package_info", null);
 const responseData = ref<PackageItem[]>([])
 // 搜索信息
 const formData = ref({ name: ''})
@@ -165,6 +165,8 @@ watch(
     },
     { deep: true , immediate: true }
 )
+
+defineExpose({ get_list });
 
 onMounted(() => {
   get_list();

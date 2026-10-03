@@ -42,7 +42,11 @@
       <i class="icon-file-manager"></i>
     </button>
     <!--文件管理器弹窗-->
-    <PackageManagement v-model="show" @refreshHomeMain="packageManagementRefreshHandle"/>
+    <PackageManagement
+        v-model="show"
+        @refreshHomeMain="packageManagementRefreshHandle"
+        @refreshSidebar="packageManagementRefreshSidebarHandle"
+    />
   </div>
 </div>
 </template>
@@ -63,7 +67,7 @@ const props = defineProps({
   packageChoose: Object,
 })
 
-const emit = defineEmits(["toggle", "submit", "refresh"]);
+const emit = defineEmits(["toggle", "submit", "refresh", "refreshSidebar"]);
 const themeStore = userThemeStore();
 
 declare global {
@@ -286,6 +290,11 @@ const packageManagementRefreshHandle = () => {
   // 通知父组件刷新页面数据
   console.log('DEBUG(Head): 刷新主页面');
   emit('refresh');
+}
+
+const packageManagementRefreshSidebarHandle = () => {
+  console.log('DEBUG(Head): 刷新侧边栏语音包列表');
+  emit('refreshSidebar');
 }
 
 onMounted(() => {

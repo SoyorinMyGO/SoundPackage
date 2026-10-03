@@ -32,7 +32,11 @@
 
           </el-dialog>
           <!--语音包选择框-->
-          <package-selector :list="packageNameList" @selected="selectHandle"/>
+          <package-selector
+              :list="packageNameList"
+              @selected="selectHandle"
+              @refresh-sidebar="handleRefreshSidebar"
+          />
         </div>
         <!--语音列表操作-->
         <div class="mid-div">
@@ -98,6 +102,7 @@ const props = defineProps({
 const emit = defineEmits<{
   (e: 'update:modelValue', val: boolean): void,
   (e: 'refreshHomeMain'): void,
+  (e: 'refreshSidebar'): void,
 }>();
 
 interface VoiceBaseInfo {
@@ -236,14 +241,14 @@ const addToDirHandle = () => {
 
 }
 
-// 新建语音包
-const addNewDirHandle = () => {
-
-}
-
 // 选择语音
 const selectHandle = (choosePackage: PackageInfo) => {
   currentPackage.value = choosePackage;
+}
+
+const handleRefreshSidebar = () => {
+  packageInfo.value = getLocalStorage<PackageItem[] | null>("package_info") ?? [];
+  emit('refreshSidebar');
 }
 
 // 改变是否降序排列

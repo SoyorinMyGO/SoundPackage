@@ -2,11 +2,24 @@
   <!-- 主容器 -->
   <div class="main-container">
     <!-- 顶部栏 -->
-    <Head :isCollapsed="isCollapsed" :packageChoose="packageChoose" @toggle="toggleCollapsed" @submit="setSearch" @refresh="refreshHomeMain"/>
+    <Head
+      :isCollapsed="isCollapsed"
+      :packageChoose="packageChoose"
+      @toggle="toggleCollapsed"
+      @submit="setSearch"
+      @refresh="refreshHomeMain"
+      @refreshSidebar="refreshSidebar"
+    />
     <!--主内容-->
     <div class="content">
       <!-- 侧边栏 -->
-      <Sidebar :isCollapsed="isCollapsed" @collapse-request="setCollapsed" @choose="setPackageChoose"/>
+      <Sidebar
+        :key="sidebarRefreshVersion"
+        ref="sidebarRef"
+        :isCollapsed="isCollapsed"
+        @collapse-request="setCollapsed"
+        @choose="setPackageChoose"
+      />
       <!-- 主视图 -->
       <HomeMain :key="homeMainRefreshVersion" ref="homeMainRef" :search="keyword" :packageChoose="packageChoose"/>
     </div>
@@ -24,7 +37,9 @@ const isCollapsed = ref<boolean>(false)
 const keyword = ref<string>('')
 const packageChoose = ref<PackageInfo>({id: 0, name: '全部语音'}) // 存储语音包对象，默认为id: name: 全部语音
 
+const sidebarRef = ref<any>(null)
 const homeMainRef = ref<any>(null)
+const sidebarRefreshVersion = ref(0)
 const homeMainRefreshVersion = ref(0)
 
 // 侧边栏折叠
@@ -43,6 +58,14 @@ function setSearch(val: string){
 // 语音包选择
 function setPackageChoose(val: PackageInfo){
   packageChoose.value = val;
+}
+
+function refreshSidebar(){
+  sidebarRefreshVersion.value += 1;
+  if (sidebarRef.value && typeof sidebarRef.value.get_list === 'function') {
+    console.log('DEBUG(Home): 重新获取 Sidebar 列表, refreshVersion=', sidebarRefreshVersion.value);
+    sidebarRef.value.get_list();
+  }
 }
 
 // 其它子组件请求刷新 HomeMain 的数据时调用
